@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+CURRENT_DIR=$(cd "$(dirname "$0")"; pwd)
+IMAGE_NAME="alphatechsdev/warehouse-be-base"
+TAG=$1
+
+if [ -z "$TAG" ]; then
+  TAG=latest
+fi
+
+docker build -t $IMAGE_NAME:$TAG $CURRENT_DIR/Dockerfile $CURRENT_DIR
