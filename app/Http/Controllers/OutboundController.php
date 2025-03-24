@@ -63,7 +63,47 @@ class OutboundController extends Controller
 
     public function updateOutbound(Request $request, $id): JsonResponse
     {
-        return response()->json()->setStatusCode('500', 'not implemented');
+        $form = $this->snakeCaseData($request->all());
+        $model = Arr::only($form, [
+            'outbound_order_id',
+            'outbound_date',
+            'carrier_name',
+            'status',
+        ]);
+        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
+        $model['customer_id'] = $form['customer']['id'] ?? null;
+        $model['customer_contact_id'] = $form['customerContact']['id']?? null;
+        $outbound = Outbound::query()->find($id);
+        $outbound->update($model);
+
+        $items = $form['items'];
+        $existingItemIds = $outbound->items()->pluck('id')->toArray();
+        $requestItemIds = collect($items)->pluck('id')->filter()->toArray();
+        $itemsToDelete = array_diff($existingItemIds, $requestItemIds);
+        OutboundItem::query()->whereIn('id', $itemsToDelete)->delete();
+        foreach ($items as $item) {
+            $itemData = Arr::only($item, [
+                'quantity',
+                'lot_number',
+                'note',
+                'inbound_item_id',
+                'inventory_item_id',
+            ]);
+            $itemData['product_id'] = $item['product']['id'] ?? null;
+            if (empty($item['id'])) {
+                $outbound->items()->create($itemData);
+            } else {
+                $itemId = $item['id'];
+                $itemModel = OutboundItem::query()->find($itemId);
+                if ($itemModel) {
+                    $itemModel->update($itemData);
+                }
+            }
+        }
+
+        $newModel = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $resource = new CommonOutboundResource($newModel);
+        return $resource->response();
     }
 
     public function deleteOutbound($id): JsonResponse

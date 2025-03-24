@@ -40,7 +40,7 @@ class InboundController extends Controller
 
         $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
         $model['customer_id'] = $form['customer']['id'] ?? null;
-        $model['customer_contact_id'] = $form['customerContact']['id']?? null;
+        $model['customer_contact_id'] = $form['customerContact']['id'] ?? null;
 
         $inbound = new Inbound($model);
         $inbound->save();
@@ -71,7 +71,53 @@ class InboundController extends Controller
 
     public function updateInbound($id, UpsertInboundRequest $request): JsonResponse
     {
-        return response()->json()->setStatusCode('500', 'not implemented');
+        $form = $this->snakeCaseData($request->all());
+        $model = Arr::only($form, [
+            'inbound_order_id',
+            'inbound_date',
+            'status',
+        ]);
+
+        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
+        $model['customer_id'] = $form['customer']['id'] ?? null;
+        $model['customer_contact_id'] = $form['customerContact']['id'] ?? null;
+
+        $inbound = Inbound::query()->with(['items'])->find($id);
+        $inbound->update($model);
+
+        $items = $form['items'];
+        $existingItemIds = $inbound->items()->pluck('id')->toArray();
+        $requestItemIds = collect($items)->pluck('id')->filter()->toArray();
+        $itemsToDelete = array_diff($existingItemIds, $requestItemIds);
+        InboundItem::query()->whereIn('id', $itemsToDelete)->delete();
+
+
+        foreach ($items as $item) {
+            $itemData = Arr::only($item, [
+                'quantity',
+                'per_item_weight',
+                'per_item_weight_unit',
+                'total_weight',
+                'manufacture_date',
+                'best_before_date',
+                'lot_number',
+                'ship_name',
+            ]);
+            $itemData['product_id'] = $item['product']['id'] ?? null;
+            if (empty($item['id'])) {
+                $inbound->items()->create($itemData);
+            } else {
+                $itemId = $item['id'];
+                $itemModel = InboundItem::query()->find($itemId);
+                if ($itemModel) {
+                    $itemModel->update($itemData);
+                }
+            }
+        }
+
+        $newModel = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $resource = new CommonInboundResource($newModel);
+        return $resource->response();
     }
 
     public function deleteInbound($id): JsonResponse

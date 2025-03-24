@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('sub_package_description')->nullable()->comment('子包装描述');
             $table->unsignedBigInteger('sub_package_count')->nullable()->comment('子包装数量');
             $table->boolean('is_fixed_weight')->nullable()->comment('是否固定重量');
-            $table->boolean('isActive')->default(true)->comment('是否启用');
+            $table->boolean('is_active')->default(true)->comment('是否启用');
 
             $table->softDeletes();
             $table->timestamps();

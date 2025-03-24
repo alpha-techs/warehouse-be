@@ -68,7 +68,7 @@ class ProductController extends Controller
         unset($form['dimension']);
 
         $product = Product::query()->find($id);
-        $product->update($form);
+        $product->update($this->snakeCaseData($form));
 
         $resource = new CommonProductResource($product);
         return $resource->response();
