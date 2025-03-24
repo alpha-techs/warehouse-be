@@ -133,4 +133,16 @@ class OutboundController extends Controller
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
     }
+
+    public function rejectOutbound($id): JsonResponse
+    {
+        $outbound = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        if ($outbound->status!= 'pending') {
+            return response()->json()->setStatusCode('400', 'outbound status must be pending to reject' );
+        }
+        $outbound->status = 'rejected';
+        $outbound->save();
+        $resource = new CommonOutboundResource($outbound);
+        return $resource->response();
+    }
 }

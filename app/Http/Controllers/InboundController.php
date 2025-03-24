@@ -164,4 +164,17 @@ class InboundController extends Controller
         $resource = new CommonInboundResource($inbound);
         return $resource->response();
     }
+
+    public function rejectInbound($id): JsonResponse
+    {
+        $inbound = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        if ($inbound->status!= 'pending') {
+            return response()->json()->setStatusCode('400', 'inbound status must be pending to reject' );
+        }
+        $inbound->status = 'rejected';
+        $inbound->save();
+
+        $resource = new CommonInboundResource($inbound);
+        return $resource->response();
+    }
 }
