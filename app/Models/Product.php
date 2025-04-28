@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
+ * App\Models\Product
  *
  * @property int $id
  * @property string $name 商品名称
@@ -14,21 +14,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $leaf_category_id 最小商品种类ID
  * @property string|null $cargo_mark 货品标记
  * @property string|null $dimension_description 尺寸描述
- * @property string|null $length 长度
- * @property string|null $width 宽度
- * @property string|null $height 高度
- * @property string|null $weight 重量
+ * @property float|null $length 长度
+ * @property float|null $width 宽度
+ * @property float|null $height 高度
+ * @property float|null $unit_weight 单件重量
+ * @property float|null $total_weight 总重量
  * @property string|null $length_unit 长度单位
  * @property string|null $weight_unit 重量单位
  * @property bool $has_sub_package 是否存在子包装
  * @property string|null $sub_package_description 子包装描述
  * @property int|null $sub_package_count 子包装数量
  * @property bool|null $is_fixed_weight 是否固定重量
- * @property int $isActive 是否启用
+ * @property int $is_active 是否启用
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read array $dimension
+ * @property-read mixed $dimension
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product onlyTrashed()
@@ -49,8 +50,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSku($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSubPackageCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSubPackageDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereTotalWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUnitWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWeightUnit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWidth($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withTrashed()
@@ -65,7 +67,12 @@ class Product extends BaseModel
 
     protected $casts = [
         'has_sub_package' => 'boolean',
-        'is_fixed_weight' => 'boolean'
+        'is_fixed_weight' => 'boolean',
+        'length' => 'float',
+        'width' => 'float',
+        'height' => 'float',
+        'unit_weight' => 'float',
+        'total_weight' => 'float',
     ];
 
     protected $appends = ['dimension'];
@@ -78,7 +85,8 @@ class Product extends BaseModel
                 'length' => $this->length,
                 'width' => $this->width,
                 'height' => $this->height,
-                'weight' => $this->weight,
+                'unit_weight' => $this->unit_weight,
+                'total_weight' => $this->total_weight,
                 'length_unit' => $this->length_unit,
                 'weight_unit' => $this->weight_unit,
             ],

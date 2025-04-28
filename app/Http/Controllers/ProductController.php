@@ -2,27 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\ProductServiceInterface;
+use App\Http\Requests\Product\GetProductsRequest;
 use App\Http\Requests\Product\UpsertProductRequest;
 use App\Http\Resources\Product\CommonProductResource;
 use App\Models\Product;
 use App\Services\SnakeCaseData;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
-class ProductController extends Controller
+final class ProductController extends Controller
 {
     use SnakeCaseData;
 
-    public function getProducts(Request $request): JsonResponse
+    public function getProducts(
+        GetProductsRequest $request,
+        ProductServiceInterface $productService,
+    ): JsonResponse
     {
-        $name = $request->input('name');
-        $query = Product::query();
-        if ($name) {
-            $query->where('name', 'like', "%{$name}%");
-        }
-        $products = $query->paginate();
-        $jsonResponse = CommonProductResource::collection($products);
-        return $jsonResponse->response();
+        $itemsPerPage = intval($request->validated('itemsPerPage', 30));
+        $page = intval($request->validated('page', 1));
+        $name = $request->validated('name');
+
+        $products = $productService->getProducts($itemsPerPage, $page, $name);
+        $resource = CommonProductResource::collection($products);
+
+        return $resource->response();
     }
 
     public function getProduct($id): JsonResponse
@@ -32,52 +36,56 @@ class ProductController extends Controller
         return $resource->response();
     }
 
-    public function createProduct(UpsertProductRequest $request): JsonResponse
+    public function createProduct(
+        UpsertProductRequest $request,
+        ProductServiceInterface $productService,
+    ): JsonResponse
     {
         $form = $request->all();
-        unset($form['leafCategory']);
 
-        $form['dimension_description'] = $form['dimension']['description'] ?? null;
-        $form['length'] = $form['dimension']['length'] ?? null;
-        $form['width'] = $form['dimension']['width'] ?? null;
-        $form['height'] = $form['dimension']['height'] ?? null;
-        $form['weight'] = $form['dimension']['weight'] ?? null;
-        $form['length_unit'] = $form['dimension']['lengthUnit'] ?? null;
-        $form['weight_unit'] = $form['dimension']['weightUnit'] ?? null;
-        unset($form['dimension']);
+        $this->extractDimensions($form);
 
-        $product = new Product($this->snakeCaseData($form));
-        $product->save();
-
+        $product = $productService->createProduct($form);
         $resource = new CommonProductResource($product);
+
         return $resource->response();
     }
 
-    public function updateProduct(UpsertProductRequest $request, $id): JsonResponse
+    public function updateProduct(
+        $id,
+        UpsertProductRequest $request,
+        ProductServiceInterface $productService,
+    ): JsonResponse
     {
         $form = $request->all();
-        unset($form['leafCategory']);
+        $this->extractDimensions($form);
 
-        $form['dimension_description'] = $form['dimension']['description'] ?? null;
-        $form['length'] = $form['dimension']['length'] ?? null;
-        $form['width'] = $form['dimension']['width'] ?? null;
-        $form['height'] = $form['dimension']['height'] ?? null;
-        $form['weight'] = $form['dimension']['weight'] ?? null;
-        $form['length_unit'] = $form['dimension']['lengthUnit'] ?? null;
-        $form['weight_unit'] = $form['dimension']['weightUnit'] ?? null;
-        unset($form['dimension']);
-
-        $product = Product::query()->find($id);
-        $product->update($this->snakeCaseData($form));
-
+        $product = $productService->updateProduct($id, $form);
         $resource = new CommonProductResource($product);
+
         return $resource->response();
     }
 
-    public function deleteProduct($id): JsonResponse
+    public function deleteProduct(
+        $id,
+        ProductServiceInterface $productService,
+    ): JsonResponse
     {
-        $product = Product::query()->find($id);
-        $product->delete();
+        $productService->deleteProduct($id);
         return response()->json()->setStatusCode(204);
+    }
+
+    private function extractDimensions(array &$form): void
+    {
+        unset($form['leafCategory']);
+        $form['dimension_description'] = $form['dimension']['description'] ?? null;
+        $form['length'] = $form['dimension']['length'] ?? null;
+        $form['width'] = $form['dimension']['width'] ?? null;
+        $form['height'] = $form['dimension']['height'] ?? null;
+        $form['unit_weight'] = $form['dimension']['unitWeight'] ?? null;
+        $form['total_weight'] = $form['dimension']['totalWeight'] ?? null;
+        $form['length_unit'] = $form['dimension']['lengthUnit'] ?? null;
+        $form['weight_unit'] = $form['dimension']['weightUnit'] ?? null;
+        unset($form['dimension']);
     }
 }

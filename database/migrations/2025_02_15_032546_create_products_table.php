@@ -21,7 +21,8 @@ return new class extends Migration
             $table->decimal('length')->nullable()->comment('长度');
             $table->decimal('width')->nullable()->comment('宽度');
             $table->decimal('height')->nullable()->comment('高度');
-            $table->decimal('weight')->nullable()->comment('重量');
+            $table->decimal('unit_weight')->nullable()->comment('单件重量');
+            $table->decimal('total_weight')->nullable()->comment('总重量');
             $table->enum('length_unit', ['cm', 'm'])->nullable()->comment('长度单位');
             $table->enum('weight_unit', ['kg', 'g'])->nullable()->comment('重量单位');
             $table->boolean('has_sub_package')->default(false)->comment('是否存在子包装');
