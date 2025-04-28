@@ -2,68 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\CustomerServiceInterface;
+use App\Http\Requests\Customer\GetCustomersRequest;
 use App\Http\Requests\Customer\UpsertCustomerRequest;
 use App\Http\Resources\Customer\CommonCustomerResource;
-use App\Models\Customer;
-use App\Services\SnakeCaseData;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-    use SnakeCaseData;
-
-    public function getCustomers(Request $request): JsonResponse
+    public function getCustomers(
+        GetCustomersRequest $request,
+        CustomerServiceInterface $customerService,
+    ): JsonResponse
     {
-        $query = Customer::query();
-        if ($request->has('name')) {
-            $query->where('name', 'like', '%'. $request->get('name'). '%');
-        }
-        $customers = $query->paginate();
+        $itemsPerPage = intval($request->validated('itemsPerPage', 30));
+        $page = intval($request->validated('page', 1));
+        $name = $request->validated('name');
+
+        $customers = $customerService->getCustomers($itemsPerPage, $page, $name);
         $jsonResponse = CommonCustomerResource::collection($customers);
+
         return $jsonResponse->response();
     }
 
-    public function getCustomer($id): JsonResponse
+    public function getCustomer(
+        $id,
+        CustomerServiceInterface $customerService,
+    ): JsonResponse
     {
-        $customer = Customer::query()->find($id);
+        $customer = $customerService->getCustomer($id);
         $resource = new CommonCustomerResource($customer);
         return $resource->response();
     }
 
-    public function createCustomer(UpsertCustomerRequest $request): JsonResponse
+    public function createCustomer(
+        UpsertCustomerRequest $request,
+        CustomerServiceInterface $customerService,
+    ): JsonResponse
     {
-        $form = $request->all();
+        $form = $request->validated();
 
-        $form['postalCode'] = $form['address']['postalCode'] ?? null;
-        $form['detailAddress1'] = $form['address']['detailAddress1'] ?? null;
-        $form['detailAddress2'] = $form['address']['detailAddress2'] ?? null;
-        unset($form['address']);
-        unset($form['contacts']);
-        $customer = new Customer($this->snakeCaseData($form));
-        $customer->save();
+        $customer = $customerService->createCustomer($form);
         $jsonResponse = CommonCustomerResource::make($customer);
+
         return $jsonResponse->response();
     }
 
-    public function updateCustomer(UpsertCustomerRequest $request, $id): JsonResponse
+    public function updateCustomer(
+        $id,
+        UpsertCustomerRequest $request,
+        CustomerServiceInterface $customerService,
+    ): JsonResponse
     {
-        $form = $request->all();
-        $form['postalCode'] = $form['address']['postalCode'];
-        $form['detailAddress1'] = $form['address']['detailAddress1'];
-        $form['detailAddress2'] = $form['address']['detailAddress2'];
-        unset($form['address']);
-        unset($form['contacts']);
-        $customer = Customer::query()->find($id);
-        $customer->update($this->snakeCaseData($form));
+        $form = $request->validated();
+
+        $customer = $customerService->updateCustomer($id, $form);
         $jsonResponse = CommonCustomerResource::make($customer);
+
         return $jsonResponse->response();
     }
 
-    public function deleteCustomer($id): JsonResponse
+    public function deleteCustomer(
+        $id,
+        CustomerServiceInterface $customerService,
+    ): JsonResponse
     {
-        $customer = Customer::query()->find($id);
-        $customer->delete();
+        $customerService->deleteCustomer($id);
         return response()->json()->setStatusCode(204);
     }
 }

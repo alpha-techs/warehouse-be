@@ -90,6 +90,16 @@ class Product extends BaseModel
                 'length_unit' => $this->length_unit,
                 'weight_unit' => $this->weight_unit,
             ],
+            set: fn (mixed $value, array $attributes) => [
+                'dimension_description' => $value['description'] ?? null,
+                'length' => $value['length'] ?? null,
+                'width' => $value['width'] ?? null,
+                'height' => $value['height'] ?? null,
+                'unit_weight' => $value['unitWeight'] ?? null,
+                'total_weight' => $value['totalWeight'] ?? null,
+                'length_unit' => $value['lengthUnit'] ?? null,
+                'weight_unit' => $value['weightUnit'] ?? null,
+            ],
         );
     }
 }

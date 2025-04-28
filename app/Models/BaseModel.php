@@ -9,6 +9,12 @@ class BaseModel extends Model
 {
     protected static $unguarded = true;
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
     public function getAttribute($key)
     {
         $key = Str::snake($key);

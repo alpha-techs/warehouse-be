@@ -2,7 +2,6 @@
 
 namespace App\Contracts\Services;
 
-use App\Http\Requests\Product\UpsertProductRequest;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\Paginator;
 
