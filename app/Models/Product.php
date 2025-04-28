@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -63,7 +64,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends BaseModel
 {
-    use softDeletes;
+    use softDeletes, HasFactory;
 
     protected $casts = [
         'has_sub_package' => 'boolean',

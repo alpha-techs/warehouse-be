@@ -10,6 +10,7 @@ class MasterDataSeeder extends Seeder
     {
         $this->call([
             ProductCategorySeeder::class,
+            CustomerSeeder::class,
         ]);
     }
 }
