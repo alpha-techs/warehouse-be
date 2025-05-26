@@ -8,14 +8,19 @@ class BaseResourceCollection extends AnonymousResourceCollection
 {
     public static $wrap = 'items';
 
+    /**
+     * @noinspection PhpUnused
+     * @noinspection PhpUnusedParameterInspection
+     */
     public function paginationInformation($request, array $paginated, array $default): array
     {
         return [
             'pagination' => [
-                'total' => $paginated['total'],
+                'totalItems' => $paginated['total'],
                 'itemsPerPage' => $paginated['per_page'],
-                'currentPage' => $paginated['current_page'],
-            ]
+                'page' => $paginated['current_page'],
+                'totalPages' => $paginated['last_page'],
+            ],
         ];
     }
 }

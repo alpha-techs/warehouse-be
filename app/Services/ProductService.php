@@ -6,13 +6,13 @@ use App\Contracts\Services\ProductServiceInterface;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\Paginator;
 
-class ProductService implements ProductServiceInterface
+final class ProductService implements ProductServiceInterface
 {
     public function getProducts(int $itemsPerPage = 30, int $page = 1, ?string $name = null): Paginator
     {
         $query = Product::query();
         if ($name) {
-            $query->whereLike('name', $name);
+            $query->whereLike('name', "%$name%");
         }
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }

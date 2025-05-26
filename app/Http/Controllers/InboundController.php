@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Models\InboundStatus;
+use App\Contracts\Services\CustomerServiceInterface;
+use App\Contracts\Services\InboundServiceInterface;
+use App\Http\Requests\Inventory\GetInboundItemsRequest;
 use App\Http\Requests\Inventory\UpsertInboundRequest;
 use App\Http\Resources\Inventory\CommonInboundResource;
 use App\Models\Inbound;
-use App\Models\InboundItem;
 use App\Models\InventoryItem;
 use App\Services\SnakeCaseData;
 use Arr;
 use Illuminate\Http\JsonResponse;
 
-class InboundController extends Controller
+final class InboundController extends Controller
 {
     use SnakeCaseData;
 
@@ -29,94 +32,80 @@ class InboundController extends Controller
         return $resource->response();
     }
 
-    public function createInbound(UpsertInboundRequest $request): JsonResponse
+    public function createInbound(
+        UpsertInboundRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $form = $this->snakeCaseData($request->all());
-        $model = Arr::only($form, [
-            'inbound_order_id',
-            'inbound_date',
-            'status',
+        $formData = $request->validated();
+
+        $data = Arr::only($formData, [
+            'inboundOrderId',
+            'inboundDate',
         ]);
-
-        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
-        $model['customer_id'] = $form['customer']['id'] ?? null;
-        $model['customer_contact_id'] = $form['customerContact']['id'] ?? null;
-
-        $inbound = new Inbound($model);
-        $inbound->save();
-
-        $items = [];
-        foreach ($form['items'] as $item) {
-            $itemModel = Arr::only($item, [
+        $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
+        $data['customerId'] = Arr::get(
+            $formData,
+            'customer.id',
+            CustomerServiceInterface::MARUOKA_JAPAN_CUSTOMER_ID
+        );
+        $data['status'] = InboundStatus::PENDING;
+        foreach ($formData['items'] as $item) {
+            $itemData = Arr::only($item, [
                 'quantity',
-                'per_item_weight',
-                'per_item_weight_unit',
-                'total_weight',
-                'manufacture_date',
-                'best_before_date',
-                'lot_number',
-                'ship_name',
+                'perItemWeight',
+                'perItemWeightUnit',
+                'totalWeight',
+                'manufactureDate',
+                'bestBeforeDate',
+                'lotNumber',
+                'shipName',
             ]);
-
-            $itemModel['product_id'] = $item['product']['id'] ?? null;
-
-            $items[] = new InboundItem($this->snakeCaseData($itemModel));
+            $itemData['productId'] = Arr::get($item, 'product.id');
+            $data['items'][] = $itemData;
         }
 
-        $inbound->items()->saveMany($items);
-
+        $inbound = $inboundService->createInbound($data);
         $resource = new CommonInboundResource($inbound);
         return $resource->response();
     }
 
-    public function updateInbound($id, UpsertInboundRequest $request): JsonResponse
+    public function updateInbound(
+        $id,
+        UpsertInboundRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $form = $this->snakeCaseData($request->all());
-        $model = Arr::only($form, [
-            'inbound_order_id',
-            'inbound_date',
-            'status',
+        $formData = $request->validated();
+
+        $data = Arr::only($formData, [
+            'inboundOrderId',
+            'inboundDate',
         ]);
-
-        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
-        $model['customer_id'] = $form['customer']['id'] ?? null;
-        $model['customer_contact_id'] = $form['customerContact']['id'] ?? null;
-
-        $inbound = Inbound::query()->with(['items'])->find($id);
-        $inbound->update($model);
-
-        $items = $form['items'];
-        $existingItemIds = $inbound->items()->pluck('id')->toArray();
-        $requestItemIds = collect($items)->pluck('id')->filter()->toArray();
-        $itemsToDelete = array_diff($existingItemIds, $requestItemIds);
-        InboundItem::query()->whereIn('id', $itemsToDelete)->delete();
-
-
-        foreach ($items as $item) {
+        $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
+        $data['customerId'] = Arr::get(
+            $formData,
+            'customer.id',
+            CustomerServiceInterface::MARUOKA_JAPAN_CUSTOMER_ID
+        );
+        foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
+                'id',
                 'quantity',
-                'per_item_weight',
-                'per_item_weight_unit',
-                'total_weight',
-                'manufacture_date',
-                'best_before_date',
-                'lot_number',
-                'ship_name',
+                'perItemWeight',
+                'perItemWeightUnit',
+                'totalWeight',
+                'manufactureDate',
+                'bestBeforeDate',
+                'lotNumber',
+                'shipName',
             ]);
-            $itemData['product_id'] = $item['product']['id'] ?? null;
-            if (empty($item['id'])) {
-                $inbound->items()->create($itemData);
-            } else {
-                $itemId = $item['id'];
-                $itemModel = InboundItem::query()->find($itemId);
-                if ($itemModel) {
-                    $itemModel->update($itemData);
-                }
-            }
+            $itemData['productId'] = Arr::get($item, 'product.id');
+            $data['items'][] = $itemData;
         }
 
-        $newModel = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
-        $resource = new CommonInboundResource($newModel);
+        $inbound = $inboundService->updateInbound($id, $data);
+        $resource = new CommonInboundResource($inbound);
         return $resource->response();
     }
 
@@ -131,10 +120,10 @@ class InboundController extends Controller
     public function approveInbound($id): JsonResponse
     {
         $inbound = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
-        if ($inbound->status != 'pending') {
+        if ($inbound->status != InboundStatus::PENDING) {
             return response()->json()->setStatusCode('400', 'inbound status must be pending to approve' );
         }
-        $inbound->status = 'approved';
+        $inbound->status = INboundStatus::APPROVED;
         $inbound->save();
 
         foreach ($inbound->items as $inboundItem) {
@@ -168,13 +157,33 @@ class InboundController extends Controller
     public function rejectInbound($id): JsonResponse
     {
         $inbound = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
-        if ($inbound->status!= 'pending') {
+        if ($inbound->status!= InboundStatus::PENDING) {
             return response()->json()->setStatusCode('400', 'inbound status must be pending to reject' );
         }
-        $inbound->status = 'rejected';
+        $inbound->status = InboundStatus::REJECTED;
         $inbound->save();
 
         $resource = new CommonInboundResource($inbound);
         return $resource->response();
+    }
+
+    public function getInboundItems(
+        GetInboundItemsRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $lotNumber = data_get($params, 'lotNumber');
+
+        $items = $inboundService->getInboundItems(
+            $itemsPerPage,
+            $page,
+            $lotNumber,
+        );
+
+        $jsonResponse = CommonInboundResource::collection($items);
+        return $jsonResponse->response();
     }
 }

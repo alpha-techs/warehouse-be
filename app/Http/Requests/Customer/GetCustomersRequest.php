@@ -4,7 +4,7 @@ namespace App\Http\Requests\Customer;
 
 use App\Http\Requests\BaseRequest;
 
-class GetCustomersRequest extends BaseRequest
+final class GetCustomersRequest extends BaseRequest
 {
     public function rules(): array
     {

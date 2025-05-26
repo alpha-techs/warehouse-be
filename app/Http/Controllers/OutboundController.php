@@ -10,7 +10,7 @@ use Arr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class OutboundController extends Controller
+final class OutboundController extends Controller
 {
     use SnakeCaseData;
 

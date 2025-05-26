@@ -7,6 +7,8 @@ use Illuminate\Contracts\Pagination\Paginator;
 
 interface CustomerServiceInterface
 {
+    public const MARUOKA_JAPAN_CUSTOMER_ID = 1;
+
     public function getCustomers(
         int $itemsPerPage = 30,
         int $page = 1,

@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
 use App\Models\InventoryItem;
 use Illuminate\Contracts\Pagination\Paginator;
 
-class InventoryService implements InventoryServiceInterface
+final class InventoryService implements InventoryServiceInterface
 {
     public function getInventoryList(int $itemsPerPage = 30, int $page = 1, array $filters = []): Paginator
     {
         $query = InventoryItem::query()->with(['warehouse', 'product']);
-        $query->whereCustomerId(1);
+        $query->whereCustomerId(CustomerServiceInterface::MARUOKA_JAPAN_CUSTOMER_ID);
         if ($filters['warehouseId'] ?? null) {
             $query->whereWarehouseId($filters['warehouseId']);
         }

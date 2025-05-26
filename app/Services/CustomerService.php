@@ -6,7 +6,7 @@ use App\Contracts\Services\CustomerServiceInterface;
 use App\Models\Customer;
 use Illuminate\Contracts\Pagination\Paginator;
 
-class CustomerService implements CustomerServiceInterface
+final class CustomerService implements CustomerServiceInterface
 {
     public function getCustomers(int $itemsPerPage = 30, int $page = 1, ?string $name = null): Paginator
     {

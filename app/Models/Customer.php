@@ -46,9 +46,9 @@ class Customer extends BaseModel
 
     protected $appends = ['address'];
 
-    protected static function boot(): void
+    protected static function booted(): void
     {
-        parent::boot();
+        parent::booted();
         static::deleting(function (Customer $customer) {
             $customer->contact()->delete();
         });

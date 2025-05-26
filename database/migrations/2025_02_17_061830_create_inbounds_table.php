@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('inbound_order_id')->nullable()->comment('客户订单ID');
             $table->date('inbound_date')->nullable()->comment('入库日期');
             $table->unsignedBigInteger('warehouse_id')->comment('仓库ID');
+            $table->string('warehouse_name')->nullable()->comment('仓库名称');
             $table->unsignedBigInteger('customer_id')->nullable()->comment('客户ID');
-            $table->unsignedBigInteger('customer_contact_id')->nullable()->comment('客户联系人ID');
+            $table->string('customer_name')->nullable()->comment('客户名称');
             $table->string('status')->comment('入库状态');
             $table->softDeletes();
             $table->timestamps();

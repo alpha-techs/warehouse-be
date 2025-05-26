@@ -9,7 +9,7 @@ use App\Services\SnakeCaseData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class WarehouseController extends Controller
+final class WarehouseController extends Controller
 {
     use SnakeCaseData;
 

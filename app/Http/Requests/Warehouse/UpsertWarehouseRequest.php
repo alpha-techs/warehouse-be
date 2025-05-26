@@ -4,6 +4,6 @@ namespace App\Http\Requests\Warehouse;
 
 use App\Http\Requests\BaseRequest;
 
-class UpsertWarehouseRequest extends BaseRequest
+final class UpsertWarehouseRequest extends BaseRequest
 {
 }

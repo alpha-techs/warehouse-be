@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Faker\MarkingProvider;
+use App\Faker\PackagingSpecProvider;
+use App\Faker\ProductNameProvider;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,14 +15,16 @@ class ProductFactory extends Factory
 {
     public function definition(): array
     {
-        $this->faker->addProvider(new JapaneseFoodProvider($this->faker));
+        $this->faker->addProvider(new ProductNameProvider($this->faker));
+        $this->faker->addProvider(new PackagingSpecProvider($this->faker));
+        $this->faker->addProvider(new MarkingProvider($this->faker));
 
         return [
-            'name' => $this->faker->japaneseFood(),
+            'name' => $this->faker->productName(),
             'sku' => $this->faker->unique()->bothify('SKU-####??'),
             'leaf_category_id' => $this->faker->numberBetween(1, 2),
-            'cargo_mark' => $this->faker->optional()->lexify('MARK-????'),
-            'dimension_description' => $this->faker->optional()->sentence,
+            'cargo_mark' => $this->faker->optional()->marking(),
+            'dimension_description' => $this->faker->optional(0.8)->packagingSpec(),
             'length' => $this->faker->randomFloat(2, 1, 200),
             'width' => $this->faker->randomFloat(2, 1, 200),
             'height' => $this->faker->randomFloat(2, 1, 200),
@@ -31,7 +36,7 @@ class ProductFactory extends Factory
             'sub_package_description' => $this->faker->optional()->sentence,
             'sub_package_count' => $this->faker->optional()->numberBetween(1, 10),
             'is_fixed_weight' => $this->faker->boolean,
-            'is_active' => $this->faker->boolean(90), // 90% 概率为启用
+            'is_active' => $this->faker->boolean(99), // 99% 概率为启用
         ];
     }
 }

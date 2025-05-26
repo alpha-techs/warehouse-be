@@ -7,7 +7,7 @@ use App\Http\Requests\Inventory\GetInventoryListRequest;
 use App\Http\Resources\Inventory\CommonInventoryResource;
 use Illuminate\Http\JsonResponse;
 
-class InventoryController extends Controller
+final class InventoryController extends Controller
 {
     public function getList(
         GetInventoryListRequest $request,

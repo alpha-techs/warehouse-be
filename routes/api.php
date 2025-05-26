@@ -38,6 +38,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::delete('/inventory/inbound/{id}', [InboundController::class, 'deleteInbound']);
     Route::post('inventory/inbound/{id}/approve', [InboundController::class, 'approveInbound']);
     Route::post('inventory/inbound/{id}/reject', [InboundController::class, 'rejectInbound']);
+    Route::get('inventory/inboundItems', [InboundController::class, 'getInboundItems']);
 
     // 出库
     Route::get('/inventory/outbounds', [OutboundController::class, 'getOutbounds']);

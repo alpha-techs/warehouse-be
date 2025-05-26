@@ -8,7 +8,7 @@ use App\Http\Requests\Customer\UpsertCustomerRequest;
 use App\Http\Resources\Customer\CommonCustomerResource;
 use Illuminate\Http\JsonResponse;
 
-class CustomerController extends Controller
+final class CustomerController extends Controller
 {
     public function getCustomers(
         GetCustomersRequest $request,
