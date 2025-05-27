@@ -39,5 +39,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Warehouse extends BaseModel
 {
-    use softDeletes;
+    use SoftDeletes;
 }

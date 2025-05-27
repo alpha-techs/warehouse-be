@@ -65,7 +65,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ObservedBy(InboundItemObserver::class)]
 class InboundItem extends BaseModel
 {
-    use softDeletes;
+    use SoftDeletes;
 
     protected $casts = [
         'inbound_status' => InboundStatus::class,

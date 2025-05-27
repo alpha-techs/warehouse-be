@@ -64,7 +64,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends BaseModel
 {
-    use softDeletes, HasFactory;
+    use SoftDeletes, HasFactory;
 
     protected $casts = [
         'has_sub_package' => 'boolean',

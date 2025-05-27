@@ -45,8 +45,12 @@ class BaseResource extends JsonResource
                 $camelArray[Str::camel($key)] = $this->arrayToCamelCase($value);
             } elseif ($value instanceof Carbon) {
                 $camelArray[Str::camel($key)] = $value->toDateTimeString();
+            } elseif ($value instanceof BaseResourceCollection) {
+                if (! is_null($value->collection)) {
+                    $camelArray[Str::camel($key)] = $this->arrayToCamelCase($value->toArray(request()));
+                }
             } elseif (is_object($value) && method_exists($value, 'toArray')) {
-                $camelArray[Str::camel($key)] = $this->arrayToCamelCase($value->toArray());
+                $camelArray[Str::camel($key)] = $this->arrayToCamelCase($value->toArray(request()));
             } else {
                 $camelArray[Str::camel($key)] = $value;
             }

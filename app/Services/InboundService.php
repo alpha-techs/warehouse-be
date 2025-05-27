@@ -54,6 +54,7 @@ final class InboundService implements InboundServiceInterface
 
             $items = $data['items'];
 
+            /** @noinspection DuplicatedCode */
             $existingIds = $inbound->items->pluck('id')->toArray();
             $newItemIds = collect($items)->pluck('id')->filter()->toArray();
 

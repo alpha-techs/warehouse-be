@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InventoryController;
@@ -51,4 +52,12 @@ Route::group(['prefix' => 'v1'], function () {
 
     // 库存
     Route::get('/inventory/list', [InventoryController::class, 'getList'] );
+
+    // 集装箱
+    Route::get('/containers', [ContainerController::class, 'getContainers'] );
+    Route::get('container/{id}', [ContainerController::class, 'getContainer']);
+    Route::post('/container', [ContainerController::class, 'createContainer'] );
+    Route::put('/container/{id}', [ContainerController::class, 'updateContainer'] );
+    Route::delete('/container/{id}', [ContainerController::class, 'deleteContainer'] );
+
 });

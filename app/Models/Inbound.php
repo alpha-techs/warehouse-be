@@ -48,7 +48,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @noinspection PhpFullyQualifiedNameUsageInspection
  * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
  */
-#[ObservedBy([InboundObserver::class])]
+#[ObservedBy(InboundObserver::class)]
 class Inbound extends BaseModel
 {
     use SoftDeletes;

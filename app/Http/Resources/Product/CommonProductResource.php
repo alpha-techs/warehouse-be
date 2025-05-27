@@ -4,7 +4,7 @@ namespace App\Http\Resources\Product;
 
 use App\Http\Resources\BaseResource;
 
-class CommonProductResource extends BaseResource
+final class CommonProductResource extends BaseResource
 {
     protected function compose(): array
     {
