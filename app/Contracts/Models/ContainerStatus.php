@@ -11,5 +11,5 @@ enum ContainerStatus: string
     case DISCHARGED = 'discharged';
     case EMPTY = 'empty';
     case RETURNED = 'returned';
-    case CANCELLED = 'cancelled';
+    case CANCELLED = 'canceled';
 }
