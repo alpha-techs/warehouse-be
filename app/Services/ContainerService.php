@@ -25,6 +25,7 @@ final class ContainerService implements ContainerServiceInterface
         if (! is_null($statuses)) {
             $query->whereIn('status', $statuses);
         }
+        $query->orderByDesc('id');
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 

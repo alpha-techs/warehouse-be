@@ -14,6 +14,7 @@ final class ProductService implements ProductServiceInterface
         if ($name) {
             $query->whereLike('name', "%$name%");
         }
+        $query->orderByDesc('id');
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 
