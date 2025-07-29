@@ -31,6 +31,10 @@ class InboundObserver
                 'warehouse_name' => $newWarehouseName,
             ]);
         }
+
+        if ($inbound->isDirty('inbound_date')) {
+            $inbound->items()->update(['inbound_date' => $inbound->inbound_date]);
+        }
     }
 
     public function deleting(Inbound $inbound): void

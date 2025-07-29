@@ -13,6 +13,7 @@ class InboundItemObserver
         $item->warehouse_id = $inbound->warehouse_id;
         $item->warehouse_name = $inbound->warehouse?->name;
         $item->inbound_status = $inbound->status;
+        $item->inbound_date = $inbound->inbound_date;
 
         if ($item->product_id) {
             $product = Product::find($item->product_id);

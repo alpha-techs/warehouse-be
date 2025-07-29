@@ -7,6 +7,7 @@ use App\Contracts\Services\InboundServiceInterface;
 use App\Models\Inbound;
 use App\Models\InboundItem;
 use Arr;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -14,13 +15,29 @@ use Throwable;
 final class InboundService implements InboundServiceInterface
 {
 
-    public function getInboundItems(int $itemsPerPage = 30, int $page = 1, ?string $lotNumber = null,): Paginator
+    public function getInboundItems(
+        int $itemsPerPage = 30,
+        int $page = 1,
+        ?string $lotNumber = null,
+        ?int $productId = null,
+        ?Carbon $inboundDateFrom = null,
+        ?Carbon $inboundDateTo = null,
+    ): Paginator
     {
         $query = InboundItem::query()
             ->with(['product', 'inbound.warehouse'])
             ->whereInboundStatus(InboundStatus::APPROVED);
         if ($lotNumber) {
             $query->whereLotNumber($lotNumber);
+        }
+        if ($productId) {
+            $query->whereProductId($productId);
+        }
+        if ($inboundDateFrom) {
+            $query->whereDate('inbound_date', '>=', $inboundDateFrom);
+        }
+        if ($inboundDateTo) {
+            $query->whereDate('inbound_date', '<=', $inboundDateTo);
         }
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }

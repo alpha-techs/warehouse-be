@@ -12,6 +12,7 @@ use App\Models\Inbound;
 use App\Models\InventoryItem;
 use App\Services\SnakeCaseData;
 use Arr;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 final class InboundController extends Controller
@@ -176,11 +177,19 @@ final class InboundController extends Controller
         $itemsPerPage = data_get($params, 'itemsPerPage', 30);
         $page = data_get($params, 'page', 1);
         $lotNumber = data_get($params, 'lotNumber');
+        $productId = data_get($params, 'productId');
+        $inboundDateFrom = data_get($params, 'inboundDateFrom');
+        $inboundDateFrom = $inboundDateFrom? Carbon::parse($inboundDateFrom) : null;
+        $inboundDateTo = data_get($params, 'inboundDateTo');
+        $inboundDateTo = $inboundDateTo? Carbon::parse($inboundDateTo) : null;
 
         $items = $inboundService->getInboundItems(
             $itemsPerPage,
             $page,
             $lotNumber,
+            $productId,
+            $inboundDateFrom,
+            $inboundDateTo,
         );
 
         $jsonResponse = CommonInboundResource::collection($items);

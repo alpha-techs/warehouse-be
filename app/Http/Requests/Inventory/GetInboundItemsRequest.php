@@ -12,6 +12,9 @@ final class GetInboundItemsRequest extends BaseRequest
             'itemsPerPage' => ['integer', 'nullable', 'min:1', 'max:100'],
             'page' => ['integer', 'nullable', 'min:1'],
             'lotNumber' => ['string', 'nullable'],
+            'productId' => ['integer', 'nullable'],
+            'inboundDateFrom' => ['date', 'nullable'],
+            'inboundDateTo' => ['date', 'nullable'],
         ];
     }
 }
