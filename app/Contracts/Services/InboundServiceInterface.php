@@ -20,4 +20,10 @@ interface InboundServiceInterface
     public function createInbound(array $data): Inbound;
 
     public function updateInbound(int $id, array $data): Inbound;
+
+    public function deleteInbound(int $id): bool;
+
+    public function approveInbound(int $id): Inbound;
+
+    public function rejectInbound(int $id): Inbound;
 }

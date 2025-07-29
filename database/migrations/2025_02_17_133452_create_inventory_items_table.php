@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('inventory_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('warehouse_id')->nullable()->comment('仓库ID');
+            $table->string('warehouse_name')->nullable()->comment('仓库名称');
             $table->unsignedBigInteger('customer_id')->nullable()->comment('客户ID');
+            $table->string('customer_name')->nullable()->comment('客户名称');
             $table->string('inbound_order_id')->nullable()->comment('入库订单ID');
             $table->unsignedBigInteger('inbound_id')->index()->comment('入库ID');
             $table->unsignedBigInteger('inbound_item_id')->index()->comment('入库商品ID');
             $table->date('inbound_date')->nullable()->comment('入库日期');
             $table->unsignedBigInteger('product_id')->nullable()->comment('商品ID');
+            $table->string('product_name')->nullable()->comment('商品名称');
             $table->string('per_item_weight', 20)->nullable()->comment('单件重量');
             $table->string('per_item_weight_unit', 20)->nullable()->comment('单件重量单位');
             $table->string('total_weight', 20)->nullable()->comment('总重量');

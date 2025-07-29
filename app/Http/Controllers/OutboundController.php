@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Inventory\UpsertOutboundRequest;
 use App\Http\Resources\Inventory\CommonOutboundResource;
 use App\Models\Outbound;
 use App\Models\OutboundItem;
@@ -28,7 +29,10 @@ final class OutboundController extends Controller
         return $resource->response();
     }
 
-    public function createOutbound(Request $request): JsonResponse
+    public function createOutbound(
+        UpsertOutboundRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
         $form = $this->snakeCaseData($request->all());
         $model = Arr::only($form, [

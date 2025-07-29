@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Customer;
 use App\Models\Inbound;
 use App\Models\Warehouse;
 
@@ -12,6 +13,11 @@ class InboundObserver
         if ($inbound->warehouse_id) {
             $warehouse = Warehouse::find($inbound->warehouse_id);
             $inbound->warehouse_name = $warehouse?->name;
+        }
+
+        if ($inbound->customer_id) {
+            $customer = Customer::find($inbound->customer_id);
+            $inbound->customer_name = $customer?->name;
         }
     }
 

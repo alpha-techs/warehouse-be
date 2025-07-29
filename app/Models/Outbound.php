@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Observers\OutboundObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $outbound_order_id 客户订单ID
@@ -45,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @noinspection PhpFullyQualifiedNameUsageInspection
  * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
  */
+#[ObservedBy(OutboundObserver::class)]
 class Outbound extends BaseModel
 {
     use SoftDeletes;
