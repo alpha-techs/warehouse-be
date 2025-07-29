@@ -43,7 +43,7 @@ final class InboundService implements InboundServiceInterface
             $query->whereStatus($status);
         }
         $query->orderByDesc('inbound_date');
-        $query->orderByDesc('created_at');
+        $query->orderByDesc('id');
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 
@@ -72,7 +72,7 @@ final class InboundService implements InboundServiceInterface
             $query->whereDate('inbound_date', '<=', $inboundDateTo);
         }
         $query->orderByDesc('inbound_date');
-        $query->orderByDesc('created_at');
+        $query->orderByDesc('id');
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 

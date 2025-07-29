@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Inventory;
 
-final class UpsertOutboundRequest
+use App\Http\Requests\BaseRequest;
+
+final class UpsertOutboundRequest extends BaseRequest
 {
     public function rules(): array
     {
@@ -26,6 +28,14 @@ final class UpsertOutboundRequest
             ],
             'items.*.id' => [
                 'nullable',
+                'integer',
+                'min:1',
+            ],
+            'items.*.inboundItemId' => [
+                'integer',
+                'min:1',
+            ],
+            'items.*.inventoryItemId' => [
                 'integer',
                 'min:1',
             ],

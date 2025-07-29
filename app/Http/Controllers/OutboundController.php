@@ -2,20 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Models\OutboundStatus;
 use App\Contracts\Services\OutboundServiceInterface;
+use App\Http\Requests\Inventory\GetOutboundListRequest;
 use App\Http\Requests\Inventory\UpsertOutboundRequest;
 use App\Http\Resources\Inventory\CommonOutboundResource;
+use App\Models\InventoryItem;
 use App\Models\Outbound;
-use App\Models\OutboundItem;
 use Arr;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 final class OutboundController extends Controller
 {
-    public function getOutbounds(): JsonResponse
+    public function getOutbounds(
+        GetOutboundListRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
-        $outbounds = Outbound::query()->with(['items', 'warehouse', 'customer'])->paginate();
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $outboundOrderId = data_get($params, 'outboundOrderId');
+        $outboundDateFrom = data_get($params, 'outboundDateFrom');
+        $outboundDateFrom = $outboundDateFrom? Carbon::parse($outboundDateFrom) : null;
+        $outboundDateTo = data_get($params, 'outboundDateTo');
+        $outboundDateTo = $outboundDateTo? Carbon::parse($outboundDateTo) : null;
+        $warehouseId = data_get($params, 'warehouseId');
+        $customerId = data_get($params, 'customerId');
+        $status = data_get($params, 'status');
+
+        $outbounds = $outboundService->getOutbounds(
+            $itemsPerPage,
+            $page,
+            $outboundOrderId,
+            $outboundDateFrom,
+            $outboundDateTo,
+            $warehouseId,
+            $customerId,
+            $status,
+        );
         $jsonResponse = CommonOutboundResource::collection($outbounds);
         return $jsonResponse->response();
     }
@@ -32,79 +58,62 @@ final class OutboundController extends Controller
         OutboundServiceInterface $outboundService,
     ): JsonResponse
     {
-        $form = $this->snakeCaseData($request->all());
-        $model = Arr::only($form, [
-            'outbound_order_id',
-            'outbound_date',
-            'carrier_name',
-            'status',
-        ]);
-        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
-        $model['customer_id'] = $form['customer']['id'] ?? null;
-        $model['customer_contact_id'] = $form['customerContact']['id']?? null;
-        $outbound = new Outbound($model);
-        $outbound->save();
-        $items = [];
-        foreach ($form['items'] as $item) {
-            $itemModel = Arr::only($item, [
-                'quantity',
-                'lot_number',
-                'note',
-                'inbound_item_id',
-                'inventory_item_id',
-            ]);
-            $itemModel['product_id'] = $item['product']['id'] ?? null;
+        $formData = $request->validated();
 
-            $items[] = new OutboundItem($this->snakeCaseData($itemModel));
+        $data = Arr::only($formData, [
+           'outboundOrderId',
+           'outboundDate',
+        ]);
+        $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
+        $data['customerId'] = Arr::get($formData, 'customer.id');
+        $data['status'] = OutboundStatus::PENDING;
+        foreach ($formData['items'] as $item) {
+            $itemData = Arr::only($item, [
+                'inboundItemId',
+                'inventoryItemId',
+                'quantity',
+                'lotNumber',
+                'note',
+            ]);
+            $itemData['productId'] = Arr::get($item, 'product.id');
+            $data['items'][] = $itemData;
         }
 
-        $outbound->items()->saveMany($items);
+        $outbound = $outboundService->createOutbound($data);
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
     }
 
-    public function updateOutbound(Request $request, $id): JsonResponse
+    public function updateOutbound(
+        $id,
+        UpsertOutboundRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
-        $form = $this->snakeCaseData($request->all());
-        $model = Arr::only($form, [
-            'outbound_order_id',
-            'outbound_date',
-            'carrier_name',
-            'status',
+        $formData = $request->validated();
+        $data = Arr::only($formData, [
+            'outboundOrderId',
+            'outboundDate',
         ]);
-        $model['warehouse_id'] = $form['warehouse']['id'] ?? null;
-        $model['customer_id'] = $form['customer']['id'] ?? null;
-        $model['customer_contact_id'] = $form['customerContact']['id']?? null;
-        $outbound = Outbound::query()->find($id);
-        $outbound->update($model);
+        $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
+        $data['customerId'] = Arr::get($formData, 'customer.id');
 
-        $items = $form['items'];
-        $existingItemIds = $outbound->items()->pluck('id')->toArray();
-        $requestItemIds = collect($items)->pluck('id')->filter()->toArray();
-        $itemsToDelete = array_diff($existingItemIds, $requestItemIds);
-        OutboundItem::query()->whereIn('id', $itemsToDelete)->delete();
-        foreach ($items as $item) {
+        foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
+                'id',
+                'inboundItemId',
+                'inventoryItemId',
                 'quantity',
-                'lot_number',
+                'lotNumber',
                 'note',
-                'inbound_item_id',
-                'inventory_item_id',
             ]);
-            $itemData['product_id'] = $item['product']['id'] ?? null;
-            if (empty($item['id'])) {
-                $outbound->items()->create($itemData);
-            } else {
-                $itemId = $item['id'];
-                $itemModel = OutboundItem::query()->find($itemId);
-                if ($itemModel) {
-                    $itemModel->update($itemData);
-                }
-            }
+            $itemData['productId'] = Arr::get($item, 'product.id');
+            $data['items'][] = $itemData;
         }
 
-        $newModel = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
-        $resource = new CommonOutboundResource($newModel);
+        $outbound = $outboundService->updateOutbound($id, $data);
+        $resource = new CommonOutboundResource($outbound);
+
         return $resource->response();
     }
 
@@ -116,22 +125,35 @@ final class OutboundController extends Controller
         return response()->json()->setStatusCode('204');
     }
 
-    public function approveOutbound($id): JsonResponse
+    public function approveOutbound(
+        $id,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
-        $outbound = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $outbound = Outbound::query()->with(['items.inventoryItem'])->findOrFail($id);
         if ($outbound->status!= 'pending') {
-            return response()->json()->setStatusCode('400', 'outbound status must be pending to approve' );
+            return response()->json(
+                ['errors' => ['message' => ['出庫ステータスが「未確認」でなければ承認できません']]],
+            )->setStatusCode('400');
         }
-        $outbound->status = 'approved';
-        $outbound->save();
 
         foreach ($outbound->items as $item) {
-            $inventoryItem = $item->inventoryItem;
-
-            $inventoryItem->left_quantity = $inventoryItem->left_quantity - $item->quantity;
-            $inventoryItem->save();
+            $inventoryItem = InventoryItem::query()->find($item->inventory_item_id);
+            if (!$inventoryItem) {
+                return response()->json(
+                    ['errors' => ['message' => ['在庫アイテムが存在しません']]],
+                )->setStatusCode('400');
+            }
+            $leftQuantity = $inventoryItem->left_quantity;
+            $neededQuantity = $item->quantity;
+            if ($leftQuantity < $neededQuantity) {
+                return response()->json(
+                    ['errors' => ['message' => ['在庫数量が不足しています']]],
+                )->setStatusCode('400');
+            }
         }
 
+        $outbound = $outboundService->approveOutbound($id);
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
     }
