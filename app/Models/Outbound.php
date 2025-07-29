@@ -9,14 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
+ * App\Models\Outbound
  *
  * @property int $id
  * @property string|null $outbound_order_id 客户订单ID
  * @property string|null $outbound_date 出库日期
  * @property int $warehouse_id 仓库ID
+ * @property string|null $warehouse_name 仓库名称
  * @property int|null $customer_id 客户ID
- * @property int|null $customer_contact_id 客户联系人ID
+ * @property string|null $customer_name 客户名称
  * @property string|null $carrier_name 承运商名称
  * @property string $status 出库状态
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -32,8 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereCarrierName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereCustomerContactId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereCustomerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereCustomerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereOutboundDate($value)
@@ -41,6 +42,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereWarehouseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound whereWarehouseName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Outbound withoutTrashed()
  * @mixin \Eloquent

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\Models\InboundStatus;
 use App\Observers\InboundItemObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $inbound_date 入库日
  * @property int|null $warehouse_id 仓库ID
  * @property string|null $warehouse_name 仓库名称
- * @property string|null $inbound_status 入库状态
+ * @property InboundStatus|null $inbound_status 入库状态
  * @property int $product_id 商品ID
  * @property string|null $product_name 商品名称
  * @property int $quantity 入库数量
@@ -65,7 +66,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ObservedBy(InboundItemObserver::class)]
 class InboundItem extends BaseModel
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
     protected $casts = [
         'inbound_status' => InboundStatus::class,

@@ -8,6 +8,16 @@ use Illuminate\Contracts\Pagination\Paginator;
 
 interface InboundServiceInterface
 {
+    public function getInbounds(
+        int $itemsPerPage = 30,
+        int $page = 1,
+        ?string $inboundOrderId = null,
+        ?Carbon $inboundDateFrom = null,
+        ?Carbon $inboundDateTo = null,
+        ?int $warehouseId = null,
+        ?string $status = null,
+    ): Paginator;
+
     public function getInboundItems(
         int $itemsPerPage = 30,
         int $page = 1,

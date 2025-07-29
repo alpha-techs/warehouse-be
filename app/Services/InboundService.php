@@ -15,6 +15,37 @@ use Throwable;
 
 final class InboundService implements InboundServiceInterface
 {
+    public function getInbounds(
+        int $itemsPerPage = 30,
+        int $page = 1,
+        ?string $inboundOrderId = null,
+        ?Carbon $inboundDateFrom = null,
+        ?Carbon $inboundDateTo = null,
+        ?int $warehouseId = null,
+        ?string $status = null,
+    ): Paginator
+    {
+        $query = Inbound::query()
+            ->with(['items', 'warehouse', 'customer']);
+        if ($inboundOrderId) {
+            $query->whereInboundOrderId($inboundOrderId);
+        }
+        if ($inboundDateFrom) {
+            $query->whereDate('inbound_date', '>=', $inboundDateFrom);
+        }
+        if ($inboundDateTo) {
+            $query->whereDate('inbound_date', '<=', $inboundDateTo);
+        }
+        if ($warehouseId) {
+            $query->whereWarehouseId($warehouseId);
+        }
+        if ($status) {
+            $query->whereStatus($status);
+        }
+        $query->orderByDesc('inbound_date');
+        $query->orderByDesc('created_at');
+        return $query->paginate($itemsPerPage, ['*'], 'page', $page);
+    }
 
     public function getInboundItems(
         int $itemsPerPage = 30,
@@ -40,6 +71,8 @@ final class InboundService implements InboundServiceInterface
         if ($inboundDateTo) {
             $query->whereDate('inbound_date', '<=', $inboundDateTo);
         }
+        $query->orderByDesc('inbound_date');
+        $query->orderByDesc('created_at');
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 

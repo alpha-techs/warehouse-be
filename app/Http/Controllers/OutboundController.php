@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\OutboundServiceInterface;
 use App\Http\Requests\Inventory\UpsertOutboundRequest;
 use App\Http\Resources\Inventory\CommonOutboundResource;
 use App\Models\Outbound;
 use App\Models\OutboundItem;
-use App\Services\SnakeCaseData;
 use Arr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 final class OutboundController extends Controller
 {
-    use SnakeCaseData;
-
     public function getOutbounds(): JsonResponse
     {
         $outbounds = Outbound::query()->with(['items', 'warehouse', 'customer'])->paginate();

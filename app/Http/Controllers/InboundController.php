@@ -6,21 +6,42 @@ use App\Contracts\Models\InboundStatus;
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\InboundServiceInterface;
 use App\Http\Requests\Inventory\GetInboundItemsRequest;
+use App\Http\Requests\Inventory\GetInboundListRequest;
 use App\Http\Requests\Inventory\UpsertInboundRequest;
 use App\Http\Resources\Inventory\CommonInboundResource;
 use App\Models\Inbound;
-use App\Services\SnakeCaseData;
 use Arr;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 final class InboundController extends Controller
 {
-    use SnakeCaseData;
-
-    public function getInbounds(): JsonResponse
+    public function getInbounds(
+        GetInboundListRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $inbounds = Inbound::query()->with(['items', 'warehouse', 'customer'])->paginate();
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $inboundOrderId = data_get($params, 'inboundOrderId');
+        $inboundDateFrom = data_get($params, 'inboundDateFrom');
+        $inboundDateFrom = $inboundDateFrom? Carbon::parse($inboundDateFrom) : null;
+        $inboundDateTo = data_get($params, 'inboundDateTo');
+        $inboundDateTo = $inboundDateTo? Carbon::parse($inboundDateTo) : null;
+        $warehouseId = data_get($params, 'warehouseId');
+        $status = data_get($params, 'status');
+
+        $inbounds = $inboundService->getInbounds(
+            $itemsPerPage,
+            $page,
+            $inboundOrderId,
+            $inboundDateFrom,
+            $inboundDateTo,
+            $warehouseId,
+            $status
+        );
+
         $jsonResponse = CommonInboundResource::collection($inbounds);
         return $jsonResponse->response();
     }

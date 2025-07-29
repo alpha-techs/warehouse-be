@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('outbound_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBiginteger('outbound_id')->index()->comment('出库单ID');
+            $table->date('outbound_date')->nullable()->comment('出库日');
+            $table->string('outbound_status')->nullable()->comment('出库状态');
             $table->unsignedBiginteger('inbound_item_id')->index()->comment('入库商品ID');
             $table->unsignedBigInteger('inventory_item_id')->index()->comment('库存商品ID');
             $table->unsignedBigInteger('warehouse_id')->comment('仓库ID');
