@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Models\OutboundStatus;
 use App\Contracts\Services\OutboundServiceInterface;
+use App\Http\Requests\Inventory\GetOutboundItemsRequest;
 use App\Http\Requests\Inventory\GetOutboundListRequest;
 use App\Http\Requests\Inventory\UpsertOutboundRequest;
+use App\Http\Resources\Inventory\CommonOutboundItemResource;
 use App\Http\Resources\Inventory\CommonOutboundResource;
 use App\Models\InventoryItem;
 use App\Models\Outbound;
@@ -168,5 +170,32 @@ final class OutboundController extends Controller
         $outbound->save();
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
+    }
+
+    public function getOutboundItems(
+        GetOutboundItemsRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $lotNumber = data_get($params, 'lotNumber');
+        $productId = data_get($params, 'productId');
+        $outboundDateFrom = data_get($params, 'outboundDateFrom');
+        $outboundDateFrom = $outboundDateFrom? Carbon::parse($outboundDateFrom) : null;
+        $outboundDateTo = data_get($params, 'outboundDateTo');
+        $outboundDateTo = $outboundDateTo? Carbon::parse($outboundDateTo) : null;
+
+        $items = $outboundService->getOutboundItems(
+            itemsPerPage: $itemsPerPage,
+            page: $page,
+            lotNumber: $lotNumber,
+            productId: $productId,
+            outboundDateFrom: $outboundDateFrom,
+            outboundDateTo: $outboundDateTo,
+        );
+        $jsonResponse = CommonOutboundItemResource::collection($items);
+        return $jsonResponse->response();
     }
 }

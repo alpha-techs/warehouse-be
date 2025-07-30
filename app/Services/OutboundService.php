@@ -67,22 +67,22 @@ final class OutboundService implements OutboundServiceInterface
             ->whereOutboundStatus(OutboundStatus::PENDING);
 
         if ($lotNumber) {
-            $query->where('lotNumber', 'like', "%$lotNumber%");
+            $query->whereLotNumber($lotNumber);
         }
 
         if ($productId) {
-            $query->where('productId', $productId);
+            $query->whereProductId($productId);
         }
 
         if ($outboundDateFrom) {
-            $query->where('outboundDate', '>=', $outboundDateFrom);
+            $query->whereDate('outbound_date', '>=', $outboundDateFrom);
         }
 
         if ($outboundDateTo) {
-            $query->where('outboundDate', '<=', $outboundDateTo);
+            $query->whereDate('outbound_date', '<=', $outboundDateTo);
         }
 
-        $query->orderByDesc('outboundDate');
+        $query->orderByDesc('outbound_date');
         $query->orderByDesc('id');
 
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);

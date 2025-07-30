@@ -8,6 +8,7 @@ use App\Contracts\Services\InboundServiceInterface;
 use App\Http\Requests\Inventory\GetInboundItemsRequest;
 use App\Http\Requests\Inventory\GetInboundListRequest;
 use App\Http\Requests\Inventory\UpsertInboundRequest;
+use App\Http\Resources\Inventory\CommonInboundItemResource;
 use App\Http\Resources\Inventory\CommonInboundResource;
 use App\Models\Inbound;
 use Arr;
@@ -195,7 +196,7 @@ final class InboundController extends Controller
             $inboundDateTo,
         );
 
-        $jsonResponse = CommonInboundResource::collection($items);
+        $jsonResponse = CommonInboundItemResource::collection($items);
         return $jsonResponse->response();
     }
 }
