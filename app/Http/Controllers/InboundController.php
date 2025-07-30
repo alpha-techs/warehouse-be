@@ -6,21 +6,43 @@ use App\Contracts\Models\InboundStatus;
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\InboundServiceInterface;
 use App\Http\Requests\Inventory\GetInboundItemsRequest;
+use App\Http\Requests\Inventory\GetInboundListRequest;
 use App\Http\Requests\Inventory\UpsertInboundRequest;
+use App\Http\Resources\Inventory\CommonInboundItemResource;
 use App\Http\Resources\Inventory\CommonInboundResource;
 use App\Models\Inbound;
-use App\Models\InventoryItem;
-use App\Services\SnakeCaseData;
 use Arr;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
 final class InboundController extends Controller
 {
-    use SnakeCaseData;
-
-    public function getInbounds(): JsonResponse
+    public function getInbounds(
+        GetInboundListRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $inbounds = Inbound::query()->with(['items', 'warehouse', 'customer'])->paginate();
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $inboundOrderId = data_get($params, 'inboundOrderId');
+        $inboundDateFrom = data_get($params, 'inboundDateFrom');
+        $inboundDateFrom = $inboundDateFrom? Carbon::parse($inboundDateFrom) : null;
+        $inboundDateTo = data_get($params, 'inboundDateTo');
+        $inboundDateTo = $inboundDateTo? Carbon::parse($inboundDateTo) : null;
+        $warehouseId = data_get($params, 'warehouseId');
+        $status = data_get($params, 'status');
+
+        $inbounds = $inboundService->getInbounds(
+            $itemsPerPage,
+            $page,
+            $inboundOrderId,
+            $inboundDateFrom,
+            $inboundDateTo,
+            $warehouseId,
+            $status
+        );
+
         $jsonResponse = CommonInboundResource::collection($inbounds);
         return $jsonResponse->response();
     }
@@ -109,59 +131,42 @@ final class InboundController extends Controller
         return $resource->response();
     }
 
-    public function deleteInbound($id): JsonResponse
+    public function deleteInbound(
+        $id,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $inbound = Inbound::query()->find($id);
-        $inbound->items()->delete();
-        $inbound->delete();
+        $inboundService->deleteInbound($id);
         return response()->json()->setStatusCode('204');
     }
 
-    public function approveInbound($id): JsonResponse
+    public function approveInbound(
+        $id,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $inbound = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $inbound = Inbound::query()->findOrFail($id);
         if ($inbound->status != InboundStatus::PENDING) {
             return response()->json()->setStatusCode('400', 'inbound status must be pending to approve' );
         }
-        $inbound->status = INboundStatus::APPROVED;
-        $inbound->save();
 
-        foreach ($inbound->items as $inboundItem) {
-            $inventoryItemModel = [
-                'warehouse_id' => $inbound['warehouse']['id'] ?? null,
-                'customer_id' => $inbound['customer']['id'] ?? null,
-                'inbound_order_id' => $inbound['inbound_order_id'] ?? null,
-                'inbound_id' => $inbound['id'],
-                'inbound_item_id' => $inboundItem['id'],
-                'inbound_date' => $inbound['inbound_date'] ?? null,
-                'product_id' => $inboundItem['product']['id'] ?? null,
-                'per_item_weight' => $inboundItem['per_item_weight'] ?? null,
-                'per_item_weight_unit' => $inboundItem['per_item_weight_unit'] ?? null,
-                'total_weight' => $inboundItem['total_weight'] ?? null,
-                'manufacture_date' => $inboundItem['manufacture_date'] ?? null,
-                'best_before_date' => $inboundItem['best_before_date'] ?? null,
-                'lot_number' => $inboundItem['lot_number'] ?? null,
-                'ship_name' => $inboundItem['ship_name'] ?? null,
-                'inbound_quantity' => $inboundItem['quantity'] ?? null,
-                'left_quantity' => $inboundItem['quantity'] ?? null,
-                'left_sub_quantity' => 0,
-            ];
-            $inventoryItem = new InventoryItem($inventoryItemModel);
-            $inventoryItem->save();
-        }
+        $inbound = $inboundService->approveInbound($id);
 
         $resource = new CommonInboundResource($inbound);
         return $resource->response();
     }
 
-    public function rejectInbound($id): JsonResponse
+    public function rejectInbound(
+        $id,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
     {
-        $inbound = Inbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $inbound = Inbound::query()->findOrFail($id);
         if ($inbound->status!= InboundStatus::PENDING) {
             return response()->json()->setStatusCode('400', 'inbound status must be pending to reject' );
         }
-        $inbound->status = InboundStatus::REJECTED;
-        $inbound->save();
+
+        $inbound = $inboundService->rejectInbound($id);
 
         $resource = new CommonInboundResource($inbound);
         return $resource->response();
@@ -176,14 +181,22 @@ final class InboundController extends Controller
         $itemsPerPage = data_get($params, 'itemsPerPage', 30);
         $page = data_get($params, 'page', 1);
         $lotNumber = data_get($params, 'lotNumber');
+        $productId = data_get($params, 'productId');
+        $inboundDateFrom = data_get($params, 'inboundDateFrom');
+        $inboundDateFrom = $inboundDateFrom? Carbon::parse($inboundDateFrom) : null;
+        $inboundDateTo = data_get($params, 'inboundDateTo');
+        $inboundDateTo = $inboundDateTo? Carbon::parse($inboundDateTo) : null;
 
         $items = $inboundService->getInboundItems(
             $itemsPerPage,
             $page,
             $lotNumber,
+            $productId,
+            $inboundDateFrom,
+            $inboundDateTo,
         );
 
-        $jsonResponse = CommonInboundResource::collection($items);
+        $jsonResponse = CommonInboundItemResource::collection($items);
         return $jsonResponse->response();
     }
 }

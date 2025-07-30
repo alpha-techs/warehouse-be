@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Customer;
 use App\Models\Inbound;
 use App\Models\Warehouse;
 
@@ -12,6 +13,11 @@ class InboundObserver
         if ($inbound->warehouse_id) {
             $warehouse = Warehouse::find($inbound->warehouse_id);
             $inbound->warehouse_name = $warehouse?->name;
+        }
+
+        if ($inbound->customer_id) {
+            $customer = Customer::find($inbound->customer_id);
+            $inbound->customer_name = $customer?->name;
         }
     }
 
@@ -30,6 +36,21 @@ class InboundObserver
                 'warehouse_id' => $inbound->warehouse_id,
                 'warehouse_name' => $newWarehouseName,
             ]);
+        }
+
+        if ($inbound->isDirty('customer_id')) {
+            $customer = Customer::find($inbound->customer_id);
+            $newCustomerName = $customer?->name;
+
+            $inbound->customer_name = $newCustomerName;
+            $inbound->items()->update([
+                'customer_id' => $inbound->customer_id,
+                'customer_name' => $newCustomerName,
+            ]);
+        }
+
+        if ($inbound->isDirty('inbound_date')) {
+            $inbound->items()->update(['inbound_date' => $inbound->inbound_date]);
         }
     }
 

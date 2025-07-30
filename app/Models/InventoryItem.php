@@ -2,19 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
+ * App\Models\InventoryItem
  *
  * @property int $id
  * @property int|null $warehouse_id 仓库ID
+ * @property string|null $warehouse_name 仓库名称
  * @property int|null $customer_id 客户ID
- * @property int|null $inbound_order_id 入库订单ID
+ * @property string|null $customer_name 客户名称
+ * @property string|null $inbound_order_id 入库订单ID
+ * @property int $inbound_id 入库ID
+ * @property int $inbound_item_id 入库商品ID
  * @property string|null $inbound_date 入库日期
  * @property int|null $product_id 商品ID
+ * @property string|null $product_name 商品名称
  * @property string|null $per_item_weight 单件重量
  * @property string|null $per_item_weight_unit 单件重量单位
  * @property string|null $total_weight 总重量
@@ -38,9 +43,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereBestBeforeDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereCustomerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereCustomerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereInboundDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereInboundId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereInboundItemId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereInboundOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereInboundQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereLeftQuantity($value)
@@ -50,10 +58,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem wherePerItemWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem wherePerItemWeightUnit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereProductName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereShipName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereTotalWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereWarehouseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereWarehouseName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem withoutTrashed()
  * @mixin \Eloquent
@@ -77,5 +87,18 @@ class InventoryItem extends BaseModel
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+
+    public function inboundItem(): BelongsTo
+    {
+        return $this->belongsTo(InboundItem::class, 'inbound_item_id', 'id');
+    }
+
+    public function outboundItems(): HasMany
+    {
+        return $this
+            ->hasMany(OutboundItem::class, 'inventory_item_id', 'id')
+            ->orderByDesc('outbound_date')
+            ->orderByDesc('id');
     }
 }

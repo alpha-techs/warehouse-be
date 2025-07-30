@@ -6,11 +6,13 @@ use App\Contracts\Services\ContainerServiceInterface;
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\InboundServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
+use App\Contracts\Services\OutboundServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
 use App\Services\ContainerService;
 use App\Services\CustomerService;
 use App\Services\InboundService;
 use App\Services\InventoryService;
+use App\Services\OutboundService;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CustomerServiceInterface::class, CustomerService::class);
         $this->app->bind(InboundServiceInterface::class, InboundService::class);
         $this->app->bind(InventoryServiceInterface::class, InventoryService::class);
+        $this->app->bind(OutboundServiceInterface::class, OutboundService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
 
         // DB Query Logs

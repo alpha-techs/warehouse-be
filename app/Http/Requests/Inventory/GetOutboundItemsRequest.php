@@ -4,7 +4,7 @@ namespace App\Http\Requests\Inventory;
 
 use App\Http\Requests\BaseRequest;
 
-final class GetInventoryListRequest extends BaseRequest
+class GetOutboundItemsRequest extends BaseRequest
 {
     public function rules(): array
     {
@@ -12,10 +12,9 @@ final class GetInventoryListRequest extends BaseRequest
             'itemsPerPage' => ['integer', 'nullable', 'min:1', 'max:100'],
             'page' => ['integer', 'nullable', 'min:1'],
             'lotNumber' => ['string', 'nullable'],
-            'warehouseId' => ['integer', 'nullable', 'exists:warehouses,id'],
-            'productId' => ['integer', 'nullable', 'exists:products,id'],
-            'inboundDateFrom' => ['date', 'nullable'],
-            'inboundDateTo' => ['date', 'nullable'],
+            'productId' => ['integer', 'nullable'],
+            'outboundDateFrom' => ['date', 'nullable'],
+            'outboundDateTo' => ['date', 'nullable'],
         ];
     }
 }

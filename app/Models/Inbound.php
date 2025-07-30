@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\Models\InboundStatus;
 use App\Observers\InboundObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,7 +52,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ObservedBy(InboundObserver::class)]
 class Inbound extends BaseModel
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
     protected $casts = [
         'status' => InboundStatus::class,
