@@ -2,6 +2,7 @@
 
 namespace App\Contracts\Services;
 
+use App\Models\InventoryItem;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -16,4 +17,6 @@ interface InventoryServiceInterface
         ?Carbon $inboundDateFrom = null,
         ?Carbon $inboundDateTo = null,
     ): Paginator;
+
+    public function getInventoryItemDetail(int $id): InventoryItem;
 }

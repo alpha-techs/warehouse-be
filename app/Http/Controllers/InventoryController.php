@@ -38,4 +38,14 @@ final class InventoryController extends Controller
         $resources = CommonInventoryResource::collection($items);
         return $resources->response();
     }
+
+    public function getDetail(
+        int $id,
+        InventoryServiceInterface $inventoryService,
+    ): JsonResponse
+    {
+        $item = $inventoryService->getInventoryItemDetail($id);
+        $resource = new CommonInventoryResource($item);
+        return $resource->response();
+    }
 }

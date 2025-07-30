@@ -39,4 +39,16 @@ final class InventoryService implements InventoryServiceInterface
         }
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
+
+    public function getInventoryItemDetail(int $id): InventoryItem
+    {
+        return InventoryItem::query()
+            ->with([
+                'warehouse',
+                'product',
+                'inboundItem.inbound',
+                'outboundItems.outbound',
+            ])
+            ->findOrFail($id);
+    }
 }

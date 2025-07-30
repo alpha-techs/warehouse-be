@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -86,5 +87,18 @@ class InventoryItem extends BaseModel
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+
+    public function inboundItem(): BelongsTo
+    {
+        return $this->belongsTo(InboundItem::class, 'inbound_item_id', 'id');
+    }
+
+    public function outboundItems(): HasMany
+    {
+        return $this
+            ->hasMany(OutboundItem::class, 'inventory_item_id', 'id')
+            ->orderByDesc('outbound_date')
+            ->orderByDesc('id');
     }
 }

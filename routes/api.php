@@ -52,7 +52,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('inventory/outboundItems', [OutboundController::class, 'getOutboundItems']);
 
     // 库存
-    Route::get('/inventory/list', [InventoryController::class, 'getList'] );
+    Route::get('/inventory/list', [InventoryController::class, 'getList']);
+    Route::get('/inventory/item/{id}', [InventoryController::class, 'getDetail']);
 
     // 集装箱
     Route::get('/containers', [ContainerController::class, 'getContainers'] );

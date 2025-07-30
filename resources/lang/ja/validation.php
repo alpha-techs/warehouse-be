@@ -113,6 +113,7 @@ return [
         'inboundDate' => '入庫日',
         'inboundDateFrom' => '入庫日（From）',
         'inboundDateTo' => '入庫日（To）',
+        'outboundDate' => '出庫日',
         'warehouse.id' => '倉庫',
         'customer.id' => 'お客様',
         'containerNumber' => 'コンテナ番号'
