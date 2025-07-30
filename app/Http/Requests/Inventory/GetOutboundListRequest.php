@@ -6,7 +6,7 @@ use App\Contracts\Models\OutboundStatus;
 use App\Http\Requests\BaseRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class GetOutboundListRequest extends BaseRequest
+final class GetOutboundListRequest extends BaseRequest
 {
     public function rules(): array
     {

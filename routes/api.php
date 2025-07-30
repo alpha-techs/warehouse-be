@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OutboundController;
@@ -10,6 +11,9 @@ use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
+    // 仪表盘
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+
     // 商品
     Route::get('products', [ProductController::class, 'getProducts']);
     Route::get('product/{id}', [ProductController::class, 'getProduct']);
@@ -54,6 +58,8 @@ Route::group(['prefix' => 'v1'], function () {
     // 库存
     Route::get('/inventory/list', [InventoryController::class, 'getList']);
     Route::get('/inventory/item/{id}', [InventoryController::class, 'getDetail']);
+    Route::get('/inventory/agedItems', [InventoryController::class, 'getAgedItems']);
+    Route::post('/inventory/agedItems/{id}/mute', [InventoryController::class, 'muteItem']);
 
     // 集装箱
     Route::get('/containers', [ContainerController::class, 'getContainers'] );

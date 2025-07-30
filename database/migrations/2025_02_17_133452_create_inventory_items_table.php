@@ -33,6 +33,7 @@ return new class extends Migration
             $table->integer('inbound_quantity')->nullable()->comment('入库数量');
             $table->integer('left_quantity')->nullable()->comment('剩余数量');
             $table->integer('left_sub_quantity')->nullable()->comment('剩余数量');
+            $table->boolean('muted')->default(false)->comment('是否静音');
 
             $table->softDeletes();
             $table->timestamps();

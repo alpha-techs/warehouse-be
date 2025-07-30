@@ -19,4 +19,11 @@ interface InventoryServiceInterface
     ): Paginator;
 
     public function getInventoryItemDetail(int $id): InventoryItem;
+
+    public function getAgedItems(
+        int $itemsPerPage = 30,
+        int $page = 1,
+    ): Paginator;
+
+    public function muteItem(int $id): InventoryItem;
 }

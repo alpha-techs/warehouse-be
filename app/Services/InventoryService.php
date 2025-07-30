@@ -51,4 +51,28 @@ final class InventoryService implements InventoryServiceInterface
             ])
             ->findOrFail($id);
     }
+
+    public function getAgedItems(
+        int $itemsPerPage = 30,
+        int $page = 1,
+    ): Paginator
+    {
+        $agedDate = Carbon::now()->subMonths(3)->toDateString();
+
+        $query = InventoryItem::query()
+            ->with(['warehouse', 'product'])
+            ->where('left_quantity', '>', 0)
+            ->where('inbound_date', '<', $agedDate)
+            ->whereMuted(false);
+
+        return $query->paginate($itemsPerPage, ['*'], 'page', $page);
+    }
+
+    public function muteItem(int $id): InventoryItem
+    {
+        $item = InventoryItem::query()->findOrFail($id);
+        $item->muted = true;
+        $item->save();
+        return $item;
+    }
 }

@@ -30,10 +30,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $inbound_quantity 入库数量
  * @property int|null $left_quantity 剩余数量
  * @property int|null $left_sub_quantity 剩余数量
+ * @property bool $muted 是否静音
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Customer|null $customer
+ * @property-read \App\Models\InboundItem|null $inboundItem
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OutboundItem> $outboundItems
+ * @property-read int|null $outbound_items_count
  * @property-read \App\Models\Product|null $product
  * @property-read \App\Models\Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem newModelQuery()
@@ -55,6 +59,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereLeftSubQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereLotNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereManufactureDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereMuted($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem wherePerItemWeight($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem wherePerItemWeightUnit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryItem whereProductId($value)
@@ -73,6 +78,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class InventoryItem extends BaseModel
 {
     use SoftDeletes;
+
+    protected $casts = [
+        'muted' => 'boolean',
+    ];
 
     public function warehouse(): BelongsTo
     {

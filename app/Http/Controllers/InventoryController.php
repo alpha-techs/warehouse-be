@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Services\InventoryServiceInterface;
+use App\Http\Requests\Inventory\GetAgedInventoryItemListRequest;
 use App\Http\Requests\Inventory\GetInventoryListRequest;
 use App\Http\Resources\Inventory\CommonInventoryResource;
 use Carbon\Carbon;
@@ -45,6 +46,29 @@ final class InventoryController extends Controller
     ): JsonResponse
     {
         $item = $inventoryService->getInventoryItemDetail($id);
+        $resource = new CommonInventoryResource($item);
+        return $resource->response();
+    }
+
+    public function getAgedItems(
+        GetAgedInventoryItemListRequest $request,
+        InventoryServiceInterface $inventoryService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+        $items = $inventoryService->getAgedItems($itemsPerPage, $page);
+        $resources = CommonInventoryResource::collection($items);
+        return $resources->response();
+    }
+
+    public function muteItem(
+        int $id,
+        InventoryServiceInterface $inventoryService,
+    ): JsonResponse
+    {
+        $item = $inventoryService->muteItem($id);
         $resource = new CommonInventoryResource($item);
         return $resource->response();
     }
