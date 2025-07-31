@@ -64,7 +64,7 @@ final class OutboundService implements OutboundServiceInterface
     {
         $query = OutboundItem::query()
             ->with(['product', 'outbound.warehouse'])
-            ->whereOutboundStatus(OutboundStatus::PENDING);
+            ->whereOutboundStatus(OutboundStatus::APPROVED);
 
         if ($lotNumber) {
             $query->whereLotNumber($lotNumber);
