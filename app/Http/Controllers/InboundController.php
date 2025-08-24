@@ -8,8 +8,14 @@ use App\Contracts\Services\InboundServiceInterface;
 use App\Http\Requests\Inventory\GetInboundItemsRequest;
 use App\Http\Requests\Inventory\GetInboundListRequest;
 use App\Http\Requests\Inventory\UpsertInboundRequest;
+use App\Http\Requests\Inbound\GenerateInboundReportRequest;
+use App\Http\Requests\Inbound\GetInboundReportListRequest;
 use App\Http\Resources\Inventory\CommonInboundItemResource;
 use App\Http\Resources\Inventory\CommonInboundResource;
+use App\Http\Resources\Inbound\InboundReportResource;
+use App\Http\Resources\BaseResourceCollection;
+use App\Jobs\GenerateInboundReportJob;
+use App\Models\InboundReport;
 use App\Models\Inbound;
 use Arr;
 use Carbon\Carbon;
@@ -198,5 +204,91 @@ final class InboundController extends Controller
 
         $jsonResponse = CommonInboundItemResource::collection($items);
         return $jsonResponse->response();
+    }
+
+    // 入库报告相关方法
+    public function generateInboundReport(
+        GenerateInboundReportRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $inboundId = data_get($params, 'inboundId');
+        $format = data_get($params, 'format', 'pdf');
+
+        // 获取入库单信息
+        $inbound = Inbound::with(['warehouse', 'customer'])->findOrFail($inboundId);
+
+        // 创建报告记录
+        $report = InboundReport::create([
+            'inbound_id' => $inboundId,
+            'warehouse_id' => $inbound->warehouse_id,
+            'warehouse_name' => $inbound->warehouse?->name,
+            'customer_id' => $inbound->customer_id,
+            'customer_name' => $inbound->customer?->name,
+            'format' => $format,
+            'status' => 'pending',
+            'storage' => InboundReport::STORAGE_LOCAL, // 默认使用本地存储
+        ]);
+
+        // 分发异步任务
+        GenerateInboundReportJob::dispatch($report->id);
+
+        $resource = new InboundReportResource($report);
+        return $resource->response()->setStatusCode(202);
+    }
+
+    public function getInboundReports(
+        GetInboundReportListRequest $request,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+
+        $reports = $inboundService->getInboundReportList(
+            $itemsPerPage,
+            $page,
+        );
+
+        $resources = new BaseResourceCollection($reports, InboundReportResource::class);
+        return $resources->response();
+    }
+
+    public function getInboundReportStatus(
+        int $id,
+        InboundServiceInterface $inboundService,
+    ): JsonResponse
+    {
+        $report = $inboundService->getInboundReportDetail($id);
+
+        $resource = new InboundReportResource($report);
+        return $resource->response();
+    }
+
+    public function downloadInboundReport(int $id): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $report = InboundReport::findOrFail($id);
+
+        if (!$report->isCompleted() || !$report->file_path) {
+            abort(404, 'Report file not found or not ready');
+        }
+
+        // 根据存储类型选择合适的磁盘
+        $disk = $report->isS3Storage() ? 's3' : 'public';
+
+        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($report->file_path)) {
+            abort(404, 'Report file not found on storage');
+        }
+
+        $filename = sprintf(
+            'inbound_report_%s_%s.%s',
+            $report->warehouse?->name ?? 'warehouse',
+            $report->created_at->format('Y_m_d'),
+            $report->format === 'excel' ? 'xlsx' : 'pdf'
+        );
+
+        return \Illuminate\Support\Facades\Storage::disk($disk)->download($report->file_path, $filename);
     }
 }

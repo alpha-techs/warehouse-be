@@ -45,6 +45,12 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('inventory/inbound/{id}/reject', [InboundController::class, 'rejectInbound']);
     Route::get('inventory/inboundItems', [InboundController::class, 'getInboundItems']);
 
+    // 入库报告
+    Route::get('inventory/inboundReports', [InboundController::class, 'getInboundReports']);
+    Route::post('inventory/inboundReport/generate', [InboundController::class, 'generateInboundReport']);
+    Route::get('inventory/inboundReports/{id}/status', [InboundController::class, 'getInboundReportStatus']);
+    Route::get('inventory/inboundReports/{id}/download', [InboundController::class, 'downloadInboundReport']);
+
     // 出库
     Route::get('inventory/outbounds', [OutboundController::class, 'getOutbounds']);
     Route::get('inventory/outbound/{id}', [OutboundController::class, 'getOutbound']);
@@ -73,4 +79,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('inventory/report/generate', [InventoryController::class, 'generateReport']);
     Route::get('inventory/reports/{id}/status', [InventoryController::class, 'getReportStatus']);
     Route::get('inventory/reports/{id}/download', [InventoryController::class, 'downloadReport']);
+
+
 });

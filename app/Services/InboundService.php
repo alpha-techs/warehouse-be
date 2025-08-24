@@ -6,6 +6,7 @@ use App\Contracts\Models\InboundStatus;
 use App\Contracts\Services\InboundServiceInterface;
 use App\Models\Inbound;
 use App\Models\InboundItem;
+use App\Models\InboundReport;
 use App\Models\InventoryItem;
 use Arr;
 use Carbon\Carbon;
@@ -197,5 +198,21 @@ final class InboundService implements InboundServiceInterface
             $inbound->save();
             return $inbound;
         });
+    }
+
+    // 入库报告相关方法
+    public function getInboundReportList(int $itemsPerPage = 30, int $page = 1): Paginator
+    {
+        $query = InboundReport::query()
+            ->with(['inbound', 'warehouse', 'customer'])
+            ->orderByDesc('id');
+        return $query->paginate($itemsPerPage, ['*'], 'page', $page);
+    }
+
+    public function getInboundReportDetail(int $id): InboundReport
+    {
+        return InboundReport::query()
+            ->with(['inbound', 'warehouse', 'customer'])
+            ->findOrFail($id);
     }
 }
