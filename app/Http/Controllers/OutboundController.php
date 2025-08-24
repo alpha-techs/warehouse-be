@@ -7,8 +7,14 @@ use App\Contracts\Services\OutboundServiceInterface;
 use App\Http\Requests\Inventory\GetOutboundItemsRequest;
 use App\Http\Requests\Inventory\GetOutboundListRequest;
 use App\Http\Requests\Inventory\UpsertOutboundRequest;
+use App\Http\Requests\Outbound\GenerateOutboundReportRequest;
+use App\Http\Requests\Outbound\GetOutboundReportListRequest;
 use App\Http\Resources\Inventory\CommonOutboundItemResource;
 use App\Http\Resources\Inventory\CommonOutboundResource;
+use App\Http\Resources\Outbound\OutboundReportResource;
+use App\Http\Resources\BaseResourceCollection;
+use App\Jobs\GenerateOutboundReportJob;
+use App\Models\OutboundReport;
 use App\Models\InventoryItem;
 use App\Models\Outbound;
 use Arr;
@@ -197,5 +203,91 @@ final class OutboundController extends Controller
         );
         $jsonResponse = CommonOutboundItemResource::collection($items);
         return $jsonResponse->response();
+    }
+
+    // 出库报告相关方法
+    public function generateOutboundReport(
+        GenerateOutboundReportRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $outboundId = data_get($params, 'outboundId');
+        $format = data_get($params, 'format', 'pdf');
+
+        // 获取出库单信息
+        $outbound = Outbound::with(['warehouse', 'customer'])->findOrFail($outboundId);
+
+        // 创建报告记录
+        $report = OutboundReport::create([
+            'outbound_id' => $outboundId,
+            'warehouse_id' => $outbound->warehouse_id,
+            'warehouse_name' => $outbound->warehouse?->name,
+            'customer_id' => $outbound->customer_id,
+            'customer_name' => $outbound->customer?->name,
+            'format' => $format,
+            'status' => 'pending',
+            'storage' => OutboundReport::STORAGE_LOCAL, // 默认使用本地存储
+        ]);
+
+        // 分发异步任务
+        GenerateOutboundReportJob::dispatch($report->id);
+
+        $resource = new OutboundReportResource($report);
+        return $resource->response()->setStatusCode(202);
+    }
+
+    public function getOutboundReports(
+        GetOutboundReportListRequest $request,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
+    {
+        $params = $request->validated();
+        $itemsPerPage = data_get($params, 'itemsPerPage', 30);
+        $page = data_get($params, 'page', 1);
+
+        $reports = $outboundService->getOutboundReportList(
+            $itemsPerPage,
+            $page,
+        );
+
+        $resources = new BaseResourceCollection($reports, OutboundReportResource::class);
+        return $resources->response();
+    }
+
+    public function getOutboundReportStatus(
+        int $id,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
+    {
+        $report = $outboundService->getOutboundReportDetail($id);
+
+        $resource = new OutboundReportResource($report);
+        return $resource->response();
+    }
+
+    public function downloadOutboundReport(int $id): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $report = OutboundReport::findOrFail($id);
+
+        if (!$report->isCompleted() || !$report->file_path) {
+            abort(404, 'Report file not found or not ready');
+        }
+
+        // 根据存储类型选择合适的磁盘
+        $disk = $report->isS3Storage() ? 's3' : 'public';
+
+        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($report->file_path)) {
+            abort(404, 'Report file not found on storage');
+        }
+
+        $filename = sprintf(
+            'outbound_report_%s_%s.%s',
+            $report->warehouse?->name ?? 'warehouse',
+            $report->created_at->format('Y_m_d'),
+            $report->format === 'excel' ? 'xlsx' : 'pdf'
+        );
+
+        return \Illuminate\Support\Facades\Storage::disk($disk)->download($report->file_path, $filename);
     }
 }

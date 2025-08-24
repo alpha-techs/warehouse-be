@@ -7,6 +7,7 @@ use App\Contracts\Services\OutboundServiceInterface;
 use App\Models\InventoryItem;
 use App\Models\Outbound;
 use App\Models\OutboundItem;
+use App\Models\OutboundReport;
 use Arr;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -188,5 +189,21 @@ final class OutboundService implements OutboundServiceInterface
             $outbound->save();
             return $outbound;
         });
+    }
+
+    // 出库报告相关方法
+    public function getOutboundReportList(int $itemsPerPage = 30, int $page = 1): Paginator
+    {
+        $query = OutboundReport::query()
+            ->with(['outbound', 'warehouse', 'customer'])
+            ->orderByDesc('id');
+        return $query->paginate($itemsPerPage, ['*'], 'page', $page);
+    }
+
+    public function getOutboundReportDetail(int $id): OutboundReport
+    {
+        return OutboundReport::query()
+            ->with(['outbound', 'warehouse', 'customer'])
+            ->findOrFail($id);
     }
 }
