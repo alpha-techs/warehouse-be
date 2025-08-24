@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
+use App\Models\Customer;
 use App\Models\InventoryItem;
+use App\Models\InventoryReport;
+use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -74,5 +77,45 @@ final class InventoryService implements InventoryServiceInterface
         $item->muted = true;
         $item->save();
         return $item;
+    }
+
+    public function getInventoryDataForReportData(int $warehouseId, int $customerId): array
+    {
+        $warehouse = Warehouse::query()->findOrFail($warehouseId);
+        $customer = Customer::query()->findOrFail($customerId);
+
+        $inventoryItems = InventoryItem::query()
+            ->with(['product'])
+            ->where('warehouse_id', $warehouseId)
+            ->where('customer_id', $customerId)
+            ->where('left_quantity', '>', 0)
+            ->orderBy('inbound_date')
+            ->orderBy('product_id')
+            ->orderBy('lot_number')
+            ->get();
+
+        $totalQuantity = $inventoryItems->sum('left_quantity');
+
+        return [
+            'inventoryItems' => $inventoryItems,
+            'totalQuantity' => $totalQuantity,
+            'warehouse' => $warehouse,
+            'customer' => $customer,
+        ];
+    }
+
+    public function getReportList(int $itemsPerPage = 30, int $page = 1): Paginator
+    {
+        $query = InventoryReport::query()
+            ->with(['warehouse', 'customer'])
+            ->orderByDesc('id');
+        return $query->paginate($itemsPerPage, ['*'], 'page', $page);
+    }
+
+    public function getReportDetail(int $id): InventoryReport
+    {
+        return InventoryReport::query()
+            ->with(['warehouse', 'customer'])
+            ->findOrFail($id);
     }
 }

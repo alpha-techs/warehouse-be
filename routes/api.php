@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
     // 仪表盘
-    Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+    Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
 
     // 商品
     Route::get('products', [ProductController::class, 'getProducts']);
@@ -36,36 +36,41 @@ Route::group(['prefix' => 'v1'], function () {
     Route::delete('customer/{id}', [CustomerController::class, 'deleteCustomer']);
 
     // 入库
-    Route::get('/inventory/inbounds', [InboundController::class, 'getInbounds']);
-    Route::get('/inventory/inbound/{id}', [InboundController::class, 'getInbound']);
-    Route::post('/inventory/inbound', [InboundController::class, 'createInbound']);
-    Route::put('/inventory/inbound/{id}', [InboundController::class, 'updateInbound']);
-    Route::delete('/inventory/inbound/{id}', [InboundController::class, 'deleteInbound']);
+    Route::get('inventory/inbounds', [InboundController::class, 'getInbounds']);
+    Route::get('inventory/inbound/{id}', [InboundController::class, 'getInbound']);
+    Route::post('inventory/inbound', [InboundController::class, 'createInbound']);
+    Route::put('inventory/inbound/{id}', [InboundController::class, 'updateInbound']);
+    Route::delete('inventory/inbound/{id}', [InboundController::class, 'deleteInbound']);
     Route::post('inventory/inbound/{id}/approve', [InboundController::class, 'approveInbound']);
     Route::post('inventory/inbound/{id}/reject', [InboundController::class, 'rejectInbound']);
     Route::get('inventory/inboundItems', [InboundController::class, 'getInboundItems']);
 
     // 出库
-    Route::get('/inventory/outbounds', [OutboundController::class, 'getOutbounds']);
-    Route::get('/inventory/outbound/{id}', [OutboundController::class, 'getOutbound']);
-    Route::post('/inventory/outbound', [OutboundController::class, 'createOutbound']);
-    Route::put('/inventory/outbound/{id}', [OutboundController::class, 'updateOutbound']);
-    Route::delete('/inventory/outbound/{id}', [OutboundController::class, 'deleteOutbound']);
+    Route::get('inventory/outbounds', [OutboundController::class, 'getOutbounds']);
+    Route::get('inventory/outbound/{id}', [OutboundController::class, 'getOutbound']);
+    Route::post('inventory/outbound', [OutboundController::class, 'createOutbound']);
+    Route::put('inventory/outbound/{id}', [OutboundController::class, 'updateOutbound']);
+    Route::delete('inventory/outbound/{id}', [OutboundController::class, 'deleteOutbound']);
     Route::post('inventory/outbound/{id}/approve', [OutboundController::class, 'approveOutbound']);
     Route::post('inventory/outbound/{id}/reject', [OutboundController::class, 'rejectOutbound']);
     Route::get('inventory/outboundItems', [OutboundController::class, 'getOutboundItems']);
 
     // 库存
-    Route::get('/inventory/list', [InventoryController::class, 'getList']);
-    Route::get('/inventory/item/{id}', [InventoryController::class, 'getDetail']);
-    Route::get('/inventory/agedItems', [InventoryController::class, 'getAgedItems']);
-    Route::post('/inventory/agedItems/{id}/mute', [InventoryController::class, 'muteItem']);
+    Route::get('inventory/list', [InventoryController::class, 'getList']);
+    Route::get('inventory/item/{id}', [InventoryController::class, 'getDetail']);
+    Route::get('inventory/agedItems', [InventoryController::class, 'getAgedItems']);
+    Route::post('inventory/agedItems/{id}/mute', [InventoryController::class, 'muteItem']);
 
     // 集装箱
-    Route::get('/containers', [ContainerController::class, 'getContainers'] );
+    Route::get('containers', [ContainerController::class, 'getContainers']);
     Route::get('container/{id}', [ContainerController::class, 'getContainer']);
-    Route::post('/container', [ContainerController::class, 'createContainer'] );
-    Route::put('/container/{id}', [ContainerController::class, 'updateContainer'] );
-    Route::delete('/container/{id}', [ContainerController::class, 'deleteContainer'] );
+    Route::post('container', [ContainerController::class, 'createContainer']);
+    Route::put('container/{id}', [ContainerController::class, 'updateContainer']);
+    Route::delete('container/{id}', [ContainerController::class, 'deleteContainer']);
 
+    // 在库报告书
+    Route::get('inventory/reports', [InventoryController::class, 'getReports']);
+    Route::post('inventory/report/generate', [InventoryController::class, 'generateReport']);
+    Route::get('inventory/reports/{id}/status', [InventoryController::class, 'getReportStatus']);
+    Route::get('inventory/reports/{id}/download', [InventoryController::class, 'downloadReport']);
 });

@@ -3,6 +3,7 @@
 namespace App\Contracts\Services;
 
 use App\Models\InventoryItem;
+use App\Models\InventoryReport;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
 
@@ -26,4 +27,13 @@ interface InventoryServiceInterface
     ): Paginator;
 
     public function muteItem(int $id): InventoryItem;
+
+    public function getInventoryDataForReportData(int $warehouseId, int $customerId): array;
+
+    public function getReportList(
+        int $itemsPerPage = 30,
+        int $page = 1,
+    ): Paginator;
+
+    public function getReportDetail(int $id): InventoryReport;
 }
