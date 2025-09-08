@@ -7,6 +7,7 @@ use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\DashboardServiceInterface;
 use App\Contracts\Services\InboundServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
+use App\Contracts\Services\NameChangeServiceInterface;
 use App\Contracts\Services\OutboundServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
 use App\Services\ContainerService;
@@ -14,6 +15,7 @@ use App\Services\CustomerService;
 use App\Services\DashboardService;
 use App\Services\InboundService;
 use App\Services\InventoryService;
+use App\Services\NameChangeService;
 use App\Services\OutboundService;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DashboardServiceInterface::class, DashboardService::class);
         $this->app->bind(InboundServiceInterface::class, InboundService::class);
         $this->app->bind(InventoryServiceInterface::class, InventoryService::class);
+        $this->app->bind(NameChangeServiceInterface::class, NameChangeService::class);
         $this->app->bind(OutboundServiceInterface::class, OutboundService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
 

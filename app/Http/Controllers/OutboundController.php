@@ -20,6 +20,8 @@ use App\Models\Outbound;
 use Arr;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class OutboundController extends Controller
 {
@@ -266,7 +268,7 @@ final class OutboundController extends Controller
         return $resource->response();
     }
 
-    public function downloadOutboundReport(int $id): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadOutboundReport(int $id): StreamedResponse
     {
         $report = OutboundReport::findOrFail($id);
 
@@ -277,7 +279,7 @@ final class OutboundController extends Controller
         // 根据存储类型选择合适的磁盘
         $disk = $report->isS3Storage() ? 's3' : 'public';
 
-        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($report->file_path)) {
+        if (!Storage::disk($disk)->exists($report->file_path)) {
             abort(404, 'Report file not found on storage');
         }
 
@@ -288,6 +290,6 @@ final class OutboundController extends Controller
             $report->format === 'excel' ? 'xlsx' : 'pdf'
         );
 
-        return \Illuminate\Support\Facades\Storage::disk($disk)->download($report->file_path, $filename);
+        return Storage::disk($disk)->download($report->file_path, $filename);
     }
 }

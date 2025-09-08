@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\NameChangeController;
 use App\Http\Controllers\OutboundController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WarehouseController;
@@ -66,6 +67,22 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('inventory/outboundReport/generate', [OutboundController::class, 'generateOutboundReport']);
     Route::get('inventory/outboundReports/{id}/status', [OutboundController::class, 'getOutboundReportStatus']);
     Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
+
+    // 名义变更
+    Route::get('inventory/nameChanges', [NameChangeController::class, 'getNameChanges']);
+    Route::get('inventory/nameChange/{id}', [NameChangeController::class, 'getNameChange']);
+    Route::post('inventory/nameChange', [NameChangeController::class, 'createNameChange']);
+    Route::put('inventory/nameChange/{id}', [NameChangeController::class, 'updateNameChange']);
+    Route::delete('inventory/nameChange/{id}', [NameChangeController::class, 'deleteNameChange']);
+    Route::post('inventory/nameChange/{id}/approve', [NameChangeController::class, 'approveNameChange']);
+    Route::post('inventory/nameChange/{id}/reject', [NameChangeController::class, 'rejectNameChange']);
+    Route::get('inventory/nameChangeItems', [NameChangeController::class, 'getNameChangeItems']);
+
+    // 名义变更报告
+    Route::get('inventory/nameChangeReports', [NameChangeController::class, 'getNameChangeReports']);
+    Route::post('inventory/nameChangeReport/generate', [NameChangeController::class, 'generateNameChangeReport']);
+    Route::get('inventory/nameChangeReports/{id}/status', [NameChangeController::class, 'getNameChangeReportStatus']);
+    Route::get('inventory/nameChangeReports/{id}/download', [NameChangeController::class, 'downloadNameChangeReport']);
 
     // 库存
     Route::get('inventory/list', [InventoryController::class, 'getList']);

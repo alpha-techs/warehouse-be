@@ -110,4 +110,9 @@ class InventoryItem extends BaseModel
             ->orderByDesc('outbound_date')
             ->orderByDesc('id');
     }
+
+    public function nameChangeItems(): HasMany
+    {
+        return $this->hasMany(NameChangeItem::class, 'inventory_item_id', 'id');
+    }
 }

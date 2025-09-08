@@ -17,6 +17,11 @@ class BaseModel extends Model
 
     public function getAttribute($key)
     {
+        // 不要转换关系方法名
+        if (method_exists($this, $key)) {
+            return parent::getAttribute($key);
+        }
+        
         $key = Str::snake($key);
         return parent::getAttribute($key);
     }
