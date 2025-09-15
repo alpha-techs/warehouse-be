@@ -20,6 +20,7 @@ use App\Models\NameChange;
 use Arr;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Storage;
 
 final class NameChangeController extends Controller
 {
@@ -273,9 +274,11 @@ final class NameChangeController extends Controller
     {
         $report = NameChangeReport::findOrFail($id);
 
-        if (!$report->isCompleted()) {
-            abort(404, 'Report not ready for download');
+        if (!$report->isCompleted() || !$report->file_path) {
+            abort(404, 'Report file not found or not ready');
         }
+
+        $disk = $report->isS3Storage() ? 's3' : 'public';
 
         $filePath = $report->file_path;
         $fullPath = storage_path('app/public/' . $filePath);
@@ -284,6 +287,6 @@ final class NameChangeController extends Controller
             abort(404, 'Report file not found');
         }
 
-        return response()->download($fullPath);
+        return Storage::disk($disk)->download($filePath);
     }
 }

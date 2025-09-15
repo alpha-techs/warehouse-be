@@ -56,9 +56,12 @@ final class OutboundController extends Controller
         return $jsonResponse->response();
     }
 
-    public function getOutbound($id): JsonResponse
+    public function getOutbound(
+        $id,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
-        $outbound = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $outbound = $outboundService->getOutbound($id);
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
     }

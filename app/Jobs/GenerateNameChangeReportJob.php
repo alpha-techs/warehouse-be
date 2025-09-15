@@ -3,11 +3,10 @@
 namespace App\Jobs;
 
 use App\Contracts\Services\NameChangeServiceInterface;
+use App\Exports\NameChangeExcelExport;
 use App\Models\Customer;
+use App\Models\NameChange;
 use App\Models\NameChangeReport;
-use App\Models\NameChangeItem;
-use App\Models\Warehouse;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -88,17 +87,20 @@ class GenerateNameChangeReportJob implements ShouldQueue
      */
     private function getNameChangeDataForReport(int $nameChangeId): array
     {
-        $nameChange = \App\Models\NameChange::with([
+        $nameChange = NameChange::with([
             'items.product',
             'warehouse',
             'customer'
         ])->findOrFail($nameChangeId);
+
+        $owner = Customer::firstWhere('id', 1);
 
         return [
             'nameChange' => $nameChange,
             'items' => $nameChange->items,
             'warehouse' => $nameChange->warehouse,
             'customer' => $nameChange->customer,
+            'owner' => $owner,
         ];
     }
 
@@ -108,8 +110,9 @@ class GenerateNameChangeReportJob implements ShouldQueue
     private function generateReportFile(NameChangeReport $report, array $data): string
     {
         $format = $report->format;
-        $fileName = 'name_change_report_' . $report->id . '_' . time() . '.' . $format;
-        
+        $fileExtension = $report->format === 'pdf' ? 'pdf' : 'xlsx';
+        $fileName = 'name_change_report_' . $report->id . '_' . time() . '.' . $fileExtension;
+
         if ($format === 'pdf') {
             return $this->generatePdfReport($report, $data, $fileName);
         } elseif ($format === 'excel') {
@@ -134,7 +137,7 @@ class GenerateNameChangeReportJob implements ShouldQueue
         ]);
 
         $pdf->setPaper('A4', 'portrait');
-        
+
         $filePath = 'reports/name_change/' . $fileName;
         Storage::disk('public')->put($filePath, $pdf->output());
 
@@ -146,11 +149,23 @@ class GenerateNameChangeReportJob implements ShouldQueue
      */
     private function generateExcelReport(NameChangeReport $report, array $data, string $fileName): string
     {
-        // 这里可以实现Excel报告生成逻辑
-        // 暂时返回一个占位符
         $filePath = 'reports/name_change/' . $fileName;
-        Storage::disk('public')->put($filePath, 'Excel report content placeholder');
-        
+        $fullPath = storage_path('app/public/' . $filePath);
+
+        // 使用重构后的 NameChangeExcelExport，完全脱离 Laravel Excel
+        $export = new NameChangeExcelExport(
+            nameChange: $data['nameChange'],
+            report: $report,
+            items: $data['items'],
+            warehouse: $data['warehouse'],
+            owner: $data['owner'],
+            customer: $data['customer']
+        );
+
+        // 直接生成到目标位置
+        $export->store($fullPath);
+
         return $filePath;
     }
+
 }

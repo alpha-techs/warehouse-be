@@ -136,6 +136,17 @@ final class OutboundService implements OutboundServiceInterface
         });
     }
 
+    public function getOutbound(int $id): Outbound
+    {
+        return Outbound::query()
+            ->with([
+                'warehouse',
+                'customer',
+                'items.product',
+            ])
+            ->findOrFail($id);
+    }
+
     /**
      * @throws Throwable
      */
