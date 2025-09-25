@@ -1978,6 +1978,172 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invoice'
+  /billing/invoicePrints:
+    get:
+      summary: 获取发票打印任务列表
+      operationId: listInvoicePrints
+      tags:
+        - 结算
+      description: |
+        获取发票打印版Excel生成任务的列表，支持按发票编号、客户和状态等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: invoiceNumber
+          in: query
+          description: 发票编号筛选
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 打印任务状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（任务创建时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（任务创建时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取发票打印任务列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePrintListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /billing/invoicePrint/generate:
+    post:
+      summary: 生成发票打印版Excel
+      operationId: generateInvoicePrint
+      tags:
+        - 结算
+      description: |
+        生成指定发票的打印版Excel文件。
+        打印任务将异步执行，返回任务ID用于查询状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePrintReq'
+      responses:
+        '202':
+          description: 发票打印任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePrintResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 发票不存在
+        '409':
+          description: 发票状态不支持生成打印版
+        '500':
+          description: 服务器内部错误
+  '/billing/invoicePrints/{printId}/status':
+    get:
+      summary: 获取发票打印任务状态
+      operationId: getInvoicePrintStatus
+      tags:
+        - 结算
+      description: |
+        根据打印任务ID获取生成状态。
+        可用于轮询检查发票打印版是否生成完成。
+      parameters:
+        - name: printId
+          in: path
+          required: true
+          description: 发票打印任务ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取发票打印任务状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePrint'
+        '404':
+          description: 打印任务不存在
+        '500':
+          description: 服务器内部错误
+  '/billing/invoicePrints/{printId}/download':
+    get:
+      summary: 下载发票打印版
+      operationId: downloadInvoicePrint
+      tags:
+        - 结算
+      description: |
+        下载已生成的发票打印版Excel文件。
+      parameters:
+        - name: printId
+          in: path
+          required: true
+          description: 发票打印任务ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载发票打印版文件
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                invoice_print_excel:
+                  summary: 发票打印版Excel
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="invoice_print_20240115.xlsx"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 打印任务不存在或尚未生成完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
   /containers:
     get:
       summary: 获取集装箱列表
@@ -3722,6 +3888,157 @@ components:
         reason:
           type: string
           description: 取消原因
+    InvoicePrintReq:
+      type: object
+      properties:
+        invoiceId:
+          type: integer
+          description: 需要生成打印版的发票ID
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+          default: excel
+      additionalProperties: false
+      required:
+        - invoiceId
+    InvoicePrintResp:
+      type: object
+      properties:
+        printId:
+          type: string
+          description: 打印任务ID
+        invoice:
+          type: object
+          description: 发票关键信息
+          properties:
+            id:
+              type: integer
+              description: 发票ID
+            invoiceNumber:
+              type: string
+              description: 发票编号
+            status:
+              type: string
+              description: 发票状态
+              enum:
+                - draft
+                - issued
+                - cancelled
+                - paid
+          additionalProperties: false
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+      additionalProperties: false
+    InvoicePrint:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 发票打印任务ID
+        invoice:
+          type: object
+          description: 发票关键信息
+          properties:
+            id:
+              type: integer
+              description: 发票ID
+            invoiceNumber:
+              type: string
+              description: 发票编号
+            status:
+              type: string
+              description: 发票状态
+              enum:
+                - draft
+                - issued
+                - cancelled
+                - paid
+            customer:
+              type: object
+              description: 发票对应客户信息
+              properties:
+                id:
+                  type: integer
+                  description: 客户ID
+                name:
+                  type: string
+                  description: 客户名称
+              additionalProperties: false
+            dueDate:
+              type: string
+              format: date
+              description: 付款截止日期
+            issueDate:
+              type: string
+              format: date-time
+              description: 发票下发时间
+            currency:
+              type: string
+              description: 结算币种
+            subtotalAmount:
+              type: number
+              format: float
+              description: 商品小计金额
+            taxAmount:
+              type: number
+              format: float
+              description: 税额
+            totalAmount:
+              type: number
+              format: float
+              description: 总金额
+          additionalProperties: false
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+        status:
+          type: string
+          description: 打印任务状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 下载链接（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 任务创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 任务完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+      additionalProperties: false
+    InvoicePrintListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InvoicePrint'
+          additionalProperties: false
     Container:
       type: object
       properties:

@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoicePrintController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\NameChangeController;
 use App\Http\Controllers\OutboundController;
@@ -75,6 +76,12 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('billing/invoice/{id}', [InvoiceController::class, 'getInvoice']);
     Route::post('billing/invoice/{id}/issue', [InvoiceController::class, 'issueInvoice']);
     Route::post('billing/invoice/{id}/cancel', [InvoiceController::class, 'cancelInvoice']);
+
+    // 结算 - 发票打印版
+    Route::get('billing/invoicePrints', [InvoicePrintController::class, 'getInvoicePrints']);
+    Route::post('billing/invoicePrint/generate', [InvoicePrintController::class, 'generateInvoicePrint']);
+    Route::get('billing/invoicePrints/{printId}/status', [InvoicePrintController::class, 'getInvoicePrintStatus']);
+    Route::get('billing/invoicePrints/{printId}/download', [InvoicePrintController::class, 'downloadInvoicePrint']);
 
     // 名义变更
     Route::get('inventory/nameChanges', [NameChangeController::class, 'getNameChanges']);
