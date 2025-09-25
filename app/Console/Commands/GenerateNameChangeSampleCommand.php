@@ -11,7 +11,7 @@ use App\Models\Product;
 use App\Models\InventoryItem;
 use App\Models\Warehouse;
 use App\Exports\NameChangeExcelExport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Support\DocumentStorage;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Console\Command;
 
@@ -45,9 +45,7 @@ class GenerateNameChangeSampleCommand extends Command
             // 生成文件名
             $fileName = $this->option('output') ?: 'name_change_sample_' . date('Y-m-d_H-i-s') . '.xlsx';
             $filePath = 'reports/name_change/' . $fileName;
-
-            // 确保目录存在
-            Storage::disk('public')->makeDirectory('reports/name_change');
+            $disk = DocumentStorage::disk(DocumentStorage::defaultType());
 
             // 检查是否有模板文件
             $templatePath = resource_path('views/reports/name_change_template.xlsx');
@@ -66,14 +64,16 @@ class GenerateNameChangeSampleCommand extends Command
                 $sampleData['owner'],
                 $sampleData['customer'],
             );
-
-            $fullPath = storage_path('app/public/' . $filePath);
-            $export->store($fullPath);
+            $binary = $export->toBinary();
+            Storage::disk($disk)->put($filePath, $binary);
             $this->info("✅ 使用重构后的 NameChangeExcelExport 生成样例");
 
-            $this->info("样例Excel文件已生成: {$fullPath}");
-            $this->info("文件大小: " . number_format(filesize($fullPath) / 1024, 2) . " KB");
-            $this->info("你可以打开这个文件来查看和调整格式。");
+            $this->info("样例Excel文件已生成: {$filePath} (disk: {$disk})");
+            $sizeBytes = Storage::disk($disk)->size($filePath);
+            if ($sizeBytes) {
+                $this->info('文件大小: ' . number_format($sizeBytes / 1024, 2) . ' KB');
+            }
+            $this->info('你可以从配置的存储磁盘下载该文件。');
 
             // 显示样例数据信息
             $this->displaySampleDataInfo($sampleData);

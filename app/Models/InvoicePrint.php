@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\DocumentStorage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -96,6 +98,23 @@ class InvoicePrint extends BaseModel
         return $this->storage === self::STORAGE_LOCAL;
     }
 
+    public function isS3Storage(): bool
+    {
+        return $this->storage === self::STORAGE_S3;
+    }
+
+    public static function defaultStorageType(): string
+    {
+        return DocumentStorage::defaultType() === DocumentStorage::S3
+            ? self::STORAGE_S3
+            : self::STORAGE_LOCAL;
+    }
+
+    public function getStorageDisk(): string
+    {
+        return DocumentStorage::disk($this->storage);
+    }
+
     public function getDownloadUrl(): ?string
     {
         if (! $this->isCompleted() || ! $this->file_path) {
@@ -106,8 +125,10 @@ class InvoicePrint extends BaseModel
             return url('storage/' . $this->file_path);
         }
 
-        if ($this->storage === self::STORAGE_S3) {
-            return \Storage::disk('s3')->temporaryUrl($this->file_path, $this->expires_at ?? now()->addDay());
+        if ($this->isS3Storage()) {
+            $expiration = $this->expires_at ?? now()->addSeconds(DocumentStorage::temporaryUrlTtl());
+
+            return Storage::disk($this->getStorageDisk())->temporaryUrl($this->file_path, $expiration);
         }
 
         return null;

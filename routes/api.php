@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePrintController;
@@ -14,6 +15,9 @@ use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
+    // 文件下载（统一下载链接生成）
+    Route::get('downloads/{type}/{id}', [DocumentDownloadController::class, 'show']);
+
     // 仪表盘
     Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
 

@@ -84,7 +84,7 @@ final class InvoicePrintController extends Controller
             abort(410, 'Invoice print download has expired');
         }
 
-        $disk = $print->isLocalStorage() ? 'public' : 's3';
+        $disk = $print->getStorageDisk();
 
         if (! Storage::disk($disk)->exists($print->file_path)) {
             abort(404, 'Invoice print file not found');

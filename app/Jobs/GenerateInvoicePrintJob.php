@@ -4,12 +4,14 @@ namespace App\Jobs;
 
 use App\Exports\InvoicePrintExcelExport;
 use App\Models\InvoicePrint;
+use App\Support\DocumentStorage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Throwable;
 
@@ -78,10 +80,12 @@ class GenerateInvoicePrintJob implements ShouldQueue
 
         $fileName = sprintf('invoice_print_%s_%s.xlsx', $invoice->invoice_number ?? $invoice->id, now()->format('YmdHis'));
         $relativePath = 'prints/invoices/' . $fileName;
-        $fullPath = storage_path('app/public/' . $relativePath);
+        $disk = DocumentStorage::disk($print->storage);
 
         $export = new InvoicePrintExcelExport($invoice, $print);
-        $export->store($fullPath);
+        $binary = $export->toBinary();
+
+        Storage::disk($disk)->put($relativePath, $binary);
 
         return $relativePath;
     }

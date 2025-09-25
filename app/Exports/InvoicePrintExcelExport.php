@@ -7,6 +7,7 @@ use App\Models\InvoiceItem;
 use App\Models\InvoicePrint;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use RuntimeException;
 
 class InvoicePrintExcelExport
 {
@@ -15,13 +16,8 @@ class InvoicePrintExcelExport
         private readonly InvoicePrint $print,
     ) {}
 
-    public function store(string $filePath): string
+    public function toBinary(): string
     {
-        $destinationDir = dirname($filePath);
-        if (! is_dir($destinationDir)) {
-            mkdir($destinationDir, 0755, true);
-        }
-
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Invoice');
@@ -65,8 +61,14 @@ class InvoicePrintExcelExport
         }
 
         $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
+        ob_start();
+        $writer->save('php://output');
+        $binary = ob_get_clean();
 
-        return $filePath;
+        if ($binary === false) {
+            throw new RuntimeException('Failed to capture invoice print Excel content.');
+        }
+
+        return $binary;
     }
 }

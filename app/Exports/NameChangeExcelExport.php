@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use RuntimeException;
 
 class NameChangeExcelExport
 {
@@ -27,9 +28,9 @@ class NameChangeExcelExport
     }
 
     /**
-     * 生成Excel文件到指定路径
+     * 渲染 Excel 内容到二进制字符串
      */
-    public function store(string $filePath): string
+    public function toBinary(): string
     {
         // 模板文件路径
         $templatePath = resource_path('views/reports/name_change_template.xlsx');
@@ -38,19 +39,8 @@ class NameChangeExcelExport
             throw new \Exception('名義変更依頼書のテンプレートファイルが見つかりません: ' . $templatePath);
         }
 
-        // 确保目标目录存在
-        $destinationDir = dirname($filePath);
-        if (!is_dir($destinationDir)) {
-            mkdir($destinationDir, 0755, true);
-        }
-
-        // 复制模板文件到目标位置
-        if (!copy($templatePath, $filePath)) {
-            throw new \Exception('テンプレートファイルのコピーに失敗しました。');
-        }
-
-        // 加载复制的文件并填充数据
-        $spreadsheet = IOFactory::load($filePath);
+        // 加载模板并填充数据
+        $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
         // 填充数据
@@ -58,9 +48,15 @@ class NameChangeExcelExport
 
         // 保存文件
         $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
+        ob_start();
+        $writer->save('php://output');
+        $binary = ob_get_clean();
 
-        return $filePath;
+        if ($binary === false) {
+            throw new RuntimeException('Failed to capture name change Excel content.');
+        }
+
+        return $binary;
     }
 
     /**
@@ -153,10 +149,8 @@ class NameChangeExcelExport
         $mergedCells = $sheet->getMergeCells();
         foreach ($mergedCells as $mergedCell) {
             if (preg_match('/(\d+)$/', $mergedCell, $m) && (int)$m[1] === $srcRow) {
-                print_r("Get merged cell: " . $mergedCell . PHP_EOL);
                 // 替换行号
                 $newMerge = preg_replace('/\d+/', $dstRow, $mergedCell);
-                print_r("Merge cell: " . $newMerge . PHP_EOL);
                 $sheet->mergeCells($newMerge);
             }
         }

@@ -231,7 +231,7 @@ final class NameChangeController extends Controller
             'customer_name' => $nameChange->customer?->name,
             'format' => $format,
             'status' => 'pending',
-            'storage' => NameChangeReport::STORAGE_LOCAL, // 默认使用本地存储
+            'storage' => NameChangeReport::defaultStorageType(),
         ]);
 
         // 分发异步任务
@@ -278,12 +278,10 @@ final class NameChangeController extends Controller
             abort(404, 'Report file not found or not ready');
         }
 
-        $disk = $report->isS3Storage() ? 's3' : 'public';
-
+        $disk = $report->getStorageDisk();
         $filePath = $report->file_path;
-        $fullPath = storage_path('app/public/' . $filePath);
 
-        if (!file_exists($fullPath)) {
+        if (!Storage::disk($disk)->exists($filePath)) {
             abort(404, 'Report file not found');
         }
 

@@ -139,7 +139,7 @@ class GenerateNameChangeReportJob implements ShouldQueue
         $pdf->setPaper('A4', 'portrait');
 
         $filePath = 'reports/name_change/' . $fileName;
-        Storage::disk('public')->put($filePath, $pdf->output());
+        Storage::disk($report->getStorageDisk())->put($filePath, $pdf->output());
 
         return $filePath;
     }
@@ -150,7 +150,6 @@ class GenerateNameChangeReportJob implements ShouldQueue
     private function generateExcelReport(NameChangeReport $report, array $data, string $fileName): string
     {
         $filePath = 'reports/name_change/' . $fileName;
-        $fullPath = storage_path('app/public/' . $filePath);
 
         // 使用重构后的 NameChangeExcelExport，完全脱离 Laravel Excel
         $export = new NameChangeExcelExport(
@@ -162,8 +161,8 @@ class GenerateNameChangeReportJob implements ShouldQueue
             customer: $data['customer']
         );
 
-        // 直接生成到目标位置
-        $export->store($fullPath);
+        $binary = $export->toBinary();
+        Storage::disk($report->getStorageDisk())->put($filePath, $binary);
 
         return $filePath;
     }

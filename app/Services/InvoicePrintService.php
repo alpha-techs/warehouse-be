@@ -86,7 +86,7 @@ final class InvoicePrintService implements InvoicePrintServiceInterface
                 'invoice_id' => $invoice->id,
                 'format' => $format,
                 'status' => 'pending',
-                'storage' => InvoicePrint::STORAGE_LOCAL,
+                'storage' => InvoicePrint::defaultStorageType(),
             ]);
 
             GenerateInvoicePrintJob::dispatch($print->id);

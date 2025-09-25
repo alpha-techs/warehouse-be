@@ -56,7 +56,7 @@ class TestReportGeneration extends Command
             'customer_name' => $customer->name,
             'format' => 'pdf',
             'status' => 'pending',
-            'storage' => InventoryReport::STORAGE_LOCAL,
+            'storage' => InventoryReport::defaultStorageType(),
         ]);
 
         $this->info("Created report with ID: {$report->id}");
@@ -77,6 +77,7 @@ class TestReportGeneration extends Command
 
         if ($report->file_path) {
             $this->info("Report file: {$report->file_path}");
+            $this->info('Download URL: ' . ($report->getDownloadUrl() ?? 'N/A'));
         }
 
         return 0;

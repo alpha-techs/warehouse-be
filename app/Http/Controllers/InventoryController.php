@@ -109,7 +109,7 @@ final class InventoryController extends Controller
             'customer_name' => $customer?->name,
             'format' => $format,
             'status' => 'pending',
-            'storage' => InventoryReport::STORAGE_LOCAL, // 默认使用本地存储
+            'storage' => InventoryReport::defaultStorageType(),
         ]);
 
         // 分发异步任务
@@ -157,7 +157,7 @@ final class InventoryController extends Controller
         }
 
         // 根据存储类型选择合适的磁盘
-        $disk = $report->isS3Storage() ? 's3' : 'public';
+        $disk = $report->getStorageDisk();
 
         if (!Storage::disk($disk)->exists($report->file_path)) {
             abort(404, 'Report file not found on storage');
@@ -195,7 +195,7 @@ final class InventoryController extends Controller
             'customer_name' => $inbound->customer?->name,
             'format' => $format,
             'status' => 'pending',
-            'storage' => InboundReport::STORAGE_LOCAL, // 默认使用本地存储
+            'storage' => InboundReport::defaultStorageType(),
         ]);
 
         // 分发异步任务
@@ -243,7 +243,7 @@ final class InventoryController extends Controller
         }
 
         // 根据存储类型选择合适的磁盘
-        $disk = $report->isS3Storage() ? 's3' : 'public';
+        $disk = $report->getStorageDisk();
 
         if (!Storage::disk($disk)->exists($report->file_path)) {
             abort(404, 'Report file not found on storage');
