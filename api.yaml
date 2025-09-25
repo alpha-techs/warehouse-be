@@ -1,0 +1,3836 @@
+openapi: 3.1.0
+info:
+  title: 库存管理系统接口
+  version: 0.0.1
+servers:
+  - url: 'https://development.gigantic-server.com/v1'
+    description: Development server
+  - url: 'https://staging.gigantic-server.com/v1'
+    description: Staging server
+  - url: 'https://api.gigantic-server.com/v1'
+    description: Production server
+security:
+  - oauth2: []
+  - bearerAuth: []
+paths:
+  /dashboard/stats:
+    get:
+      summary: 获取仪表盘统计数据
+      operationId: getDashboardStats
+      tags:
+        - 仪表盘
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatsResp'
+  /warehouses:
+    get:
+      summary: 仓库列表
+      operationId: listWarehouses
+      tags:
+        - 仓库
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: name
+          in: query
+          description: 仓库名称
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWarehousesResp'
+  /warehouse:
+    post:
+      summary: 创建新的仓库
+      operationId: createWarehouse
+      tags:
+        - 仓库
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWarehouseReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateWarehouseResp'
+  '/warehouse/{id}':
+    get:
+      summary: 获取仓库详情
+      operationId: getWarehouse
+      tags:
+        - 仓库
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 仓库 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWarehouseResp'
+    put:
+      summary: 更新仓库
+      operationId: updateWarehouse
+      tags:
+        - 仓库
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 仓库 ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Warehouse'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWarehouseResp'
+    delete:
+      summary: 删除仓库
+      operationId: deleteWarehouse
+      tags:
+        - 仓库
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 仓库 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+  /products:
+    get:
+      summary: 获取商品列表
+      operationId: listProducts
+      tags:
+        - 商品
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: name
+          in: query
+          description: 商品名称
+          schema:
+            type: string
+        - name: sku
+          in: query
+          description: 商品SKU
+          schema:
+            type: string
+        - name: isActive
+          in: query
+          description: 是否激活
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProductsResp'
+  /product:
+    post:
+      summary: 创建商品
+      operationId: createProduct
+      tags:
+        - 商品
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateProductResp'
+  '/product/{id}':
+    get:
+      summary: 获取商品详情
+      operationId: getProduct
+      tags:
+        - 商品
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 商品ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProductResp'
+    put:
+      summary: 更新商品
+      operationId: updateProduct
+      tags:
+        - 商品
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 商品ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProductResp'
+    delete:
+      summary: 删除商品
+      operationId: deleteProduct
+      tags:
+        - 商品
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 商品ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+  /customers:
+    get:
+      summary: 获取客户列表
+      operationId: listCustomers
+      tags:
+        - 客户
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: name
+          in: query
+          description: 客户名
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomersResp'
+  /customer:
+    post:
+      summary: 创建客户
+      operationId: createCustomer
+      tags:
+        - 客户
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomerResp'
+  '/customer/{id}':
+    get:
+      summary: 获取客户详情
+      operationId: getCustomer
+      tags:
+        - 客户
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 客户ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomerResp'
+    put:
+      summary: 更新客户
+      operationId: updateCustomer
+      tags:
+        - 客户
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 客户ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomerResp'
+    delete:
+      summary: 删除客户
+      operationId: deleteCustomer
+      tags:
+        - 客户
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 客户ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+  /inventory/inbounds:
+    get:
+      summary: 入库单列表
+      operationId: listInbounds
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: inboundOrderId
+          in: query
+          description: 入库订单ID
+          schema:
+            type: string
+        - name: inboundDateFrom
+          in: query
+          description: 入库日期(From)
+          schema:
+            type: string
+            format: date
+        - name: inboundDateTo
+          in: query
+          description: 入库日期(To)
+          schema:
+            type: string
+            format: date
+        - name: warehouseId
+          in: query
+          description: 仓库ID
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 入库状态
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboundsResp'
+  /inventory/inbound:
+    post:
+      summary: 创建入库单
+      operationId: createInbound
+      tags:
+        - 库存
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inbound'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+  '/inventory/inbound/{id}':
+    get:
+      summary: 入库单详情
+      operationId: getInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+    put:
+      summary: 更新入库单
+      operationId: updateInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Inbound'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+    delete:
+      summary: 删除入库单
+      operationId: deleteInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+  '/inventory/inbound/{id}/approve':
+    post:
+      summary: 确认入库单
+      operationId: approveInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+  '/inventory/inbound/{id}/reject':
+    post:
+      summary: 拒绝入库单
+      operationId: rejectInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+  '/inventory/inbound/{id}/cancel':
+    post:
+      summary: 取消入库单
+      operationId: cancelInbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inbound'
+  /inventory/inboundItems:
+    get:
+      summary: 入库商品列表
+      operationId: listInboundItems
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: lotNumber
+          in: query
+          description: 批次号
+          schema:
+            type: string
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+        - name: inboundDateFrom
+          in: query
+          description: 入库日期(From)
+          schema:
+            type: string
+            format: date
+        - name: inboundDateTo
+          in: query
+          description: 入库日期(To)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboundItemsResp'
+  /inventory/outbounds:
+    get:
+      summary: 出库单列表
+      operationId: listOutbounds
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOutboundsResp'
+  /inventory/outbound:
+    post:
+      summary: 创建出库单
+      operationId: createOutbound
+      tags:
+        - 库存
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outbound'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+  '/inventory/outbound/{id}':
+    get:
+      summary: 出库单详情
+      operationId: getOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 入库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+    put:
+      summary: 更新出库单
+      operationId: updateOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 出库单ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outbound'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+    delete:
+      summary: 删除出库单
+      operationId: deleteOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 出库单ID
+  '/inventory/outbound/{id}/approve':
+    post:
+      summary: 确认出库单
+      operationId: approveOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 出库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+  '/inventory/outbound/{id}/reject':
+    post:
+      summary: 拒绝出库单
+      operationId: rejectOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 出库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+  '/inventory/outbound/{id}/cancel':
+    post:
+      summary: 取消出库单
+      operationId: cancelOutbound
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 出库单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Outbound'
+  /inventory/outboundItems:
+    get:
+      summary: 出库商品列表
+      operationId: listOutboundItems
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: lotNumber
+          in: query
+          description: 批次号
+          schema:
+            type: string
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+        - name: outboundDateFrom
+          in: query
+          description: 出库日期(From)
+          schema:
+            type: string
+            format: date
+        - name: outboundDateTo
+          in: query
+          description: 出库日期(To)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOutboundItemsResp'
+  /inventory/list:
+    get:
+      summary: 库存列表
+      operationId: listInventory
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: warehouseId
+          in: query
+          description: 仓库ID
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID
+          schema:
+            type: integer
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInventoryResp'
+  '/inventory/item/{id}':
+    get:
+      summary: 获取库存物品详情
+      operationId: getInventoryItemDetail
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 库存物品ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDetailResp'
+  /inventory/agedItems:
+    get:
+      summary: 获取库存过久商品列表
+      operationId: getAgedInventoryItemList
+      tags:
+        - 仪表盘
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgedInventoryItemListResp'
+  '/inventory/agedItems/{id}/mute':
+    post:
+      summary: 静音库存物品
+      operationId: muteAgedInventoryItem
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 库存物品ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+  /inventory/reports:
+    get:
+      summary: 获取在库报告列表
+      operationId: listInventoryReports
+      tags:
+        - 库存报告
+      description: |
+        获取在库报告的历史列表，支持按仓库、客户等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: warehouseId
+          in: query
+          description: 仓库ID筛选
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 报告状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取报告列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryReportListResp'
+  /inventory/report/generate:
+    post:
+      summary: 生成在库报告
+      operationId: generateInventoryReport
+      tags:
+        - 库存报告
+      description: |
+        生成指定仓库和客户的在库报告PDF。
+        报告将异步生成，返回报告ID用于查询生成状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryReportReq'
+      responses:
+        '202':
+          description: 报告生成任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryReportResp'
+  '/inventory/reports/{reportId}/status':
+    get:
+      summary: 获取报告生成状态
+      operationId: getInventoryReportStatus
+      tags:
+        - 库存报告
+      description: |
+        根据报告ID获取在库报告的生成状态。
+        可用于轮询检查报告是否生成完成。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取报告状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryReport'
+  '/inventory/reports/{reportId}/download':
+    get:
+      summary: 下载在库报告
+      operationId: downloadInventoryReport
+      tags:
+        - 库存报告
+      description: |
+        下载已生成的在库报告文件。
+        支持PDF和Excel格式的报告下载。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载报告文件
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+              examples:
+                pdf_report:
+                  summary: PDF格式报告
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                excel_report:
+                  summary: Excel格式报告
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="inventory_report_20240115.pdf"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+  /inventory/inboundReports:
+    get:
+      summary: 获取入库报告列表
+      operationId: listInboundReports
+      tags:
+        - 入库报告
+      description: |
+        获取入库报告的历史列表，支持按仓库、客户等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: warehouseId
+          in: query
+          description: 仓库ID筛选
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 报告状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取入库报告列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundReportListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /inventory/inboundReport/generate:
+    post:
+      summary: 生成入库报告
+      operationId: generateInboundReport
+      tags:
+        - 入库报告
+      description: |
+        生成指定入库记录的入库报告PDF/Excel。
+        报告将异步生成，返回报告ID用于查询生成状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboundReportReq'
+      responses:
+        '202':
+          description: 入库报告生成任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundReportResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 入库记录不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/inboundReports/{reportId}/status':
+    get:
+      summary: 获取入库报告生成状态
+      operationId: getInboundReportStatus
+      tags:
+        - 入库报告
+      description: |
+        根据报告ID获取入库报告的生成状态。
+        可用于轮询检查报告是否生成完成。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 入库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取入库报告状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundReport'
+        '404':
+          description: 报告不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/inboundReports/{reportId}/download':
+    get:
+      summary: 下载入库报告
+      operationId: downloadInboundReport
+      tags:
+        - 入库报告
+      description: |
+        下载已生成的入库报告文件。
+        支持PDF和Excel格式的报告下载。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 入库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载入库报告文件
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+              examples:
+                pdf_report:
+                  summary: PDF格式入库报告
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                excel_report:
+                  summary: Excel格式入库报告
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="inbound_report_20240115.pdf"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 报告不存在或尚未生成完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
+  /inventory/outboundReports:
+    get:
+      summary: 获取出库报告列表
+      operationId: listOutboundReports
+      tags:
+        - 出库报告
+      description: |
+        获取出库报告的历史列表，支持按仓库、客户等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: warehouseId
+          in: query
+          description: 仓库ID筛选
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 报告状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取出库报告列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundReportListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /inventory/outboundReport/generate:
+    post:
+      summary: 生成出库报告
+      operationId: generateOutboundReport
+      tags:
+        - 出库报告
+      description: |
+        生成指定出库记录的出库报告PDF/Excel。
+        报告将异步生成，返回报告ID用于查询生成状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutboundReportReq'
+      responses:
+        '202':
+          description: 出库报告生成任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundReportResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 出库记录不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/outboundReports/{reportId}/status':
+    get:
+      summary: 获取出库报告生成状态
+      operationId: getOutboundReportStatus
+      tags:
+        - 出库报告
+      description: |
+        根据报告ID获取出库报告的生成状态。
+        可用于轮询检查报告是否生成完成。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 出库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取出库报告状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundReport'
+        '404':
+          description: 报告不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/outboundReports/{reportId}/download':
+    get:
+      summary: 下载出库报告
+      operationId: downloadOutboundReport
+      tags:
+        - 出库报告
+      description: |
+        下载已生成的出库报告文件。
+        支持PDF和Excel格式的报告下载。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 出库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载出库报告文件
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+              examples:
+                pdf_report:
+                  summary: PDF格式出库报告
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                excel_report:
+                  summary: Excel格式出库报告
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="outbound_report_20240115.pdf"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 报告不存在或尚未生成完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
+  /inventory/nameChanges:
+    get:
+      summary: 名义变更单列表
+      operationId: listNameChanges
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNameChangesResp'
+  /inventory/nameChange:
+    post:
+      summary: 创建名义变更单
+      operationId: createNameChange
+      tags:
+        - 库存
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameChange'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+  '/inventory/nameChange/{id}':
+    get:
+      summary: 名义变更单详情
+      operationId: getNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+    put:
+      summary: 更新名义变更单
+      operationId: updateNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameChange'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+    delete:
+      summary: 删除名义变更单
+      operationId: deleteNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+  '/inventory/nameChange/{id}/approve':
+    post:
+      summary: 确认名义变更单
+      operationId: approveNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+  '/inventory/nameChange/{id}/reject':
+    post:
+      summary: 拒绝名义变更单
+      operationId: rejectNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+  '/inventory/nameChange/{id}/cancel':
+    post:
+      summary: 取消名义变更单
+      operationId: cancelNameChange
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 名义变更单ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChange'
+  /inventory/nameChangeItems:
+    get:
+      summary: 名义变更商品列表
+      operationId: listNameChangeItems
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: lotNumber
+          in: query
+          description: 批次号
+          schema:
+            type: string
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+        - name: nameChangeDateFrom
+          in: query
+          description: 名义变更日期(From)
+          schema:
+            type: string
+            format: date
+        - name: nameChangeDateTo
+          in: query
+          description: 名义变更日期(To)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNameChangeItemsResp'
+  /inventory/nameChangeReports:
+    get:
+      summary: 获取名义变更报告列表
+      operationId: listNameChangeReports
+      tags:
+        - 名义变更报告
+      description: |
+        获取名义变更报告的历史列表，支持按仓库、客户等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: warehouseId
+          in: query
+          description: 仓库ID筛选
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 报告状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（报告生成时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取名义变更报告列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChangeReportListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /inventory/nameChangeReport/generate:
+    post:
+      summary: 生成名义变更报告
+      operationId: generateNameChangeReport
+      tags:
+        - 名义变更报告
+      description: |
+        生成指定名义变更记录的名义变更报告PDF/Excel。
+        报告将异步生成，返回报告ID用于查询生成状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameChangeReportReq'
+      responses:
+        '202':
+          description: 名义变更报告生成任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChangeReportResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 名义变更记录不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/nameChangeReports/{reportId}/status':
+    get:
+      summary: 获取名义变更报告生成状态
+      operationId: getNameChangeReportStatus
+      tags:
+        - 名义变更报告
+      description: |
+        根据报告ID获取名义变更报告的生成状态。
+        可用于轮询检查报告是否生成完成。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 名义变更报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取名义变更报告状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NameChangeReport'
+        '404':
+          description: 报告不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/nameChangeReports/{reportId}/download':
+    get:
+      summary: 下载名义变更报告
+      operationId: downloadNameChangeReport
+      tags:
+        - 名义变更报告
+      description: |
+        下载已生成的名义变更报告文件。
+        支持PDF和Excel格式的报告下载。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: 名义变更报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载名义变更报告文件
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+              examples:
+                pdf_report:
+                  summary: PDF格式名义变更报告
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                excel_report:
+                  summary: Excel格式名义变更报告
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="name_change_report_20240115.pdf"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 报告不存在或尚未生成完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
+  /billing/invoices:
+    get:
+      summary: 发票列表
+      operationId: listInvoices
+      tags:
+        - 结算
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: 每页数量
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+          description: 客户ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - draft
+              - issued
+              - cancelled
+              - paid
+          description: 发票状态
+        - name: outboundDateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 出库日期（起）
+        - name: outboundDateTo
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 出库日期（止）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInvoicesResp'
+  /billing/invoice:
+    post:
+      summary: 创建发票
+      operationId: createInvoice
+      tags:
+        - 结算
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  '/billing/invoice/{id}':
+    get:
+      summary: 发票详情
+      operationId: getInvoice
+      tags:
+        - 结算
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 发票ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  '/billing/invoice/{id}/issue':
+    post:
+      summary: 下发发票
+      operationId: issueInvoice
+      tags:
+        - 结算
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 发票ID
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueInvoiceReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  '/billing/invoice/{id}/cancel':
+    post:
+      summary: 取消发票
+      operationId: cancelInvoice
+      tags:
+        - 结算
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: 发票ID
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelInvoiceReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  /containers:
+    get:
+      summary: 获取集装箱列表
+      operationId: listContainers
+      tags:
+        - 集装箱
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: containerNumber
+          in: query
+          description: 集装箱号
+          schema:
+            type: string
+        - name: 'statuses[]'
+          in: query
+          description: 集装箱状态
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - shipping
+                - arrived
+                - customsClearance
+                - discharging
+                - discharged
+                - empty
+                - returned
+                - canceled
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContainersResp'
+  /container:
+    post:
+      summary: 创建集装箱
+      operationId: createContainer
+      tags:
+        - 集装箱
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContainerReq'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContainerResp'
+  '/container/{id}':
+    get:
+      summary: 获取集装箱详情
+      operationId: getContainer
+      tags:
+        - 集装箱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 集装箱ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomerResp'
+    put:
+      summary: 更新集装箱
+      operationId: updateContainer
+      tags:
+        - 集装箱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 集装箱ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Container'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContainerResp'
+    delete:
+      summary: 删除集装箱
+      operationId: deleteContainer
+      tags:
+        - 集装箱
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: 集装箱ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /auth/login
+          scopes: {}
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Address:
+      type: object
+      description: 地址
+      properties:
+        postalCode:
+          type: string
+          description: 邮政编码
+        detailAddress1:
+          type: string
+          description: 详细地址1
+        detailAddress2:
+          type: string
+          description: 详细地址2
+    Pagination:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              description: 页码
+            itemsPerPage:
+              type: integer
+              description: 每页数量
+            totalItems:
+              type: integer
+              description: 总数量
+            totalPages:
+              type: integer
+              description: 总页数
+    DashboardStats:
+      type: object
+      properties:
+        totalInventoryCount:
+          type: integer
+          description: 总库存数量
+        monthlyInboundCount:
+          type: integer
+          description: 本月入库数量
+        monthlyOutboundCount:
+          type: integer
+          description: 本月出库数量
+        pendingInboundCount:
+          type: integer
+          description: 待处理入库单数量
+        pendingOutboundCount:
+          type: integer
+          description: 待处理出库单数量
+        warehouseCount:
+          type: integer
+          description: 仓库数量
+        customerCount:
+          type: integer
+          description: 客户数量
+        productCount:
+          type: integer
+          description: 商品数量
+    DashboardStatsResp:
+      allOf:
+        - $ref: '#/components/schemas/DashboardStats'
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 仓库ID
+        name:
+          type: string
+          description: 仓库名称
+        tel:
+          type: string
+          description: 电话
+        fax:
+          type: string
+          description: 传真
+        address:
+          $ref: '#/components/schemas/Address'
+          description: 仓库地址
+    CreateWarehouseReq:
+      allOf:
+        - $ref: '#/components/schemas/Warehouse'
+    CreateWarehouseResp:
+      allOf:
+        - $ref: '#/components/schemas/Warehouse'
+    GetWarehouseResp:
+      allOf:
+        - $ref: '#/components/schemas/Warehouse'
+    ListWarehousesResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Warehouse'
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 商品ID
+        name:
+          type: string
+          description: 商品名
+        sku:
+          type: string
+          description: 商品SKU
+        leafCategory:
+          $ref: '#/components/schemas/ProductCategory'
+          description: 最小商品种类ID
+        categoryRoute:
+          type: array
+          description: 商品种类路径
+          items:
+            $ref: '#/components/schemas/ProductCategory'
+        cargoMark:
+          type: string
+          description: 货物标记
+        dimension:
+          type: object
+          properties:
+            description:
+              type: string
+              description: 尺寸描述
+            length:
+              type: number
+              description: 长度
+            width:
+              type: number
+              description: 宽度
+            height:
+              type: number
+              description: 高度
+            lengthUnit:
+              type: string
+              description: 长度单位
+              enum:
+                - mm
+                - cm
+                - m
+            unitWeight:
+              type: number
+              description: 单件重量
+            totalWeight:
+              type: number
+              description: 总重量
+            weightUnit:
+              type: string
+              description: 重量单位
+              enum:
+                - kg
+                - g
+        hasSubPackage:
+          type: boolean
+          description: 是否存在子包装
+        subPackageCount:
+          type: integer
+          description: 子包装数量
+        isFixedWeight:
+          type: boolean
+          description: 是否固定重量
+        isActive:
+          type: boolean
+          description: 是否激活
+    ProductCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 商品种类ID
+        parentId:
+          type: integer
+          description: 父商品种类ID
+        name:
+          type: string
+          description: 商品种类名称
+    CreateProductReq:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+    CreateProductResp:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+    GetProductResp:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+    ListProductsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 客户ID
+        name:
+          type: string
+          description: 客户名
+        tel:
+          type: string
+          description: 电话
+        fax:
+          type: string
+          description: 传真
+        address:
+          $ref: '#/components/schemas/Address'
+          description: 地址
+        contact:
+          $ref: '#/components/schemas/CustomerContact'
+    CreateCustomerReq:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+    CreateCustomerResp:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+    GetCustomerResp:
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+    ListCustomersResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Customer'
+    CustomerContact:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 联系人ID
+        customerId:
+          type: integer
+          description: 客户ID
+        name:
+          type: string
+          description: 联系人名
+        tel:
+          type: string
+          description: 电话
+        email:
+          type: string
+          description: 邮箱
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 库存物品ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        inboundOrderId:
+          type: string
+          description: 入库订单ID
+        inboundId:
+          type: integer
+          description: 入库记录ID
+        inboundItemId:
+          type: integer
+          description: 入库物品ID
+        inboundDate:
+          type: string
+          description: 入库日期
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+            dimension:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: 尺寸描述
+                length:
+                  type: number
+                  description: 长度
+                width:
+                  type: number
+                  description: 宽度
+                height:
+                  type: number
+                  description: 高度
+                lengthUnit:
+                  type: string
+                  description: 长度单位
+                  enum:
+                    - cm
+                    - m
+                weight:
+                  type: number
+                  description: 重量
+                weightUnit:
+                  type: string
+                  description: 重量单位
+                  enum:
+                    - kg
+                    - g
+        perItemWeight:
+          type: number
+          description: 单品重量
+        perItemWeightUnit:
+          type: string
+          description: 单品重量单位
+        totalWeight:
+          type: number
+          description: 总重量
+        manufactureDate:
+          type: string
+          format: date
+          description: 生产日期
+        bestBeforeDate:
+          type: string
+          format: date
+          description: 最佳风味期限
+        lotNumber:
+          type: string
+          description: 批次号
+        shipName:
+          type: string
+          description: 船名
+        inboundQuantity:
+          type: integer
+          description: 入库数量
+        leftQuantity:
+          type: integer
+          description: 剩余数量
+        leftSubQuantity:
+          type: integer
+          description: 剩余子件数
+        muted:
+          type: boolean
+          description: 是否静音
+    InventoryItemDetailResp:
+      allOf:
+        - $ref: '#/components/schemas/InventoryItem'
+        - type: object
+          properties:
+            inboundItem:
+              $ref: '#/components/schemas/InboundItem'
+            outboundItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/OutboundItem'
+            nameChangeItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/NameChangeItem'
+    AgedInventoryItemListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InventoryItem'
+    ListInventoryResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InventoryItem'
+    StorageFeePlan:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 保管费用计划ID
+        fromDate:
+          type: string
+          description: 开始日期
+        payerName:
+          type: string
+          description: 付款方名称
+    Inbound:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 入库记录ID
+        inboundOrderId:
+          type: string
+          description: 入库订单ID
+        inboundDate:
+          type: string
+          format: date
+          description: 入库日期
+        customerOrderId:
+          type: string
+          description: 客户订单号
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        items:
+          type: array
+          description: 入库物品列表
+          items:
+            $ref: '#/components/schemas/InboundItem'
+        storageFeePlans:
+          type: array
+          description: 保管费用计划列表
+          items:
+            $ref: '#/components/schemas/StorageFeePlan'
+        status:
+          type: string
+          description: 入库状态
+          enum:
+            - draft
+            - pending
+            - approved
+            - rejected
+            - cancelled
+        createdAt:
+          type: string
+          description: 创建时间
+    ListInboundsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Inbound'
+    ListInboundItemsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InboundItem'
+    InboundItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 入库物品ID
+        inboundId:
+          type: integer
+          description: 入库记录ID
+        inbound:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 入库记录ID
+            inboundOrderId:
+              type: string
+              description: 入库订单ID
+            inboundDate:
+              type: string
+              description: 入库日期
+            warehouse:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 仓库ID
+                name:
+                  type: string
+                  description: 仓库名称
+        productId:
+          type: integer
+          description: 商品ID
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+        quantity:
+          type: integer
+          description: 入库数量
+        perItemWeight:
+          type: number
+          description: 单品重量
+        perItemWeightUnit:
+          type: string
+          description: 单品重量单位
+        totalWeight:
+          type: number
+          description: 总重量
+        manufactureDate:
+          type: string
+          format: date
+          description: 生产日期
+        bestBeforeDate:
+          type: string
+          format: date
+          description: 最佳风味期限
+        lotNumber:
+          type: string
+          description: 批次号
+        shipName:
+          type: string
+          description: 船名
+    Outbound:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 出库记录ID
+        outboundOrderId:
+          type: string
+          description: 出库订单ID
+        outboundDate:
+          type: string
+          format: date
+          description: 出库日期
+        outboundTime:
+          type: string
+          description: 出库时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        customerContactId:
+          type: integer
+          description: 客户联系人ID
+        carrierName:
+          type: string
+          description: 承运商名称
+        items:
+          type: array
+          description: 出库物品列表
+          items:
+            $ref: '#/components/schemas/OutboundItem'
+        status:
+          type: string
+          description: 出库状态
+          enum:
+            - draft
+            - pending
+            - approved
+            - rejected
+            - cancelled
+        currency:
+          type: string
+          description: 结算币种，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        subtotalAmount:
+          type: number
+          format: float
+          description: 商品小计金额
+        taxAmount:
+          type: number
+          format: float
+          description: 税额
+        totalAmount:
+          type: number
+          format: float
+          description: 总金额
+        createdAt:
+          type: string
+          description: 创建时间
+    ListOutboundsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Outbound'
+    ListOutboundItemsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OutboundItem'
+    OutboundItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 出库物品ID
+        outboundId:
+          type: integer
+          description: 出库记录ID
+        outbound:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 出库记录ID
+            outboundOrderId:
+              type: string
+              description: 出库订单ID
+            outboundDate:
+              type: string
+              format: date
+              description: 出库日期
+            warehouse:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 仓库ID
+                name:
+                  type: string
+                  description: 仓库名称
+            customer:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 客户ID
+                name:
+                  type: string
+                  description: 客户名称
+        inboundItemId:
+          type: integer
+          description: 入库物品ID
+        inventoryItemId:
+          type: integer
+          description: 库存物品ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+            dimension:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: 尺寸描述
+                length:
+                  type: number
+                  description: 长度
+                width:
+                  type: number
+                  description: 宽度
+                height:
+                  type: number
+                  description: 高度
+                lengthUnit:
+                  type: string
+                  description: 长度单位
+                  enum:
+                    - cm
+                    - m
+                weight:
+                  type: number
+                  description: 重量
+                weightUnit:
+                  type: string
+                  description: 重量单位
+                  enum:
+                    - kg
+                    - g
+        lotNumber:
+          type: string
+          description: 批次号
+        inventoryQuantity:
+          type: integer
+          description: 库存数量
+        quantity:
+          type: integer
+          description: 出库数量
+        unitPrice:
+          type: number
+          format: float
+          description: 商品单价
+        currency:
+          type: string
+          description: 结算币种，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        lineAmount:
+          type: number
+          format: float
+          description: 行金额
+        taxAmount:
+          type: number
+          format: float
+          description: 行税额
+        note:
+          type: string
+          description: 备注
+    InventoryReportReq:
+      type: object
+      properties:
+        warehouseId:
+          type: integer
+          description: 仓库ID
+        customerId:
+          type: integer
+          description: 客户ID
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+          default: pdf
+      required:
+        - warehouseId
+        - customerId
+    InventoryReportResp:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: 报告ID
+        reportDate:
+          type: string
+          format: date-time
+          description: 报告生成时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    InventoryReport:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 报告ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        reportDate:
+          type: string
+          format: date
+          description: 报告日期
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+        status:
+          type: string
+          description: 报告状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 报告下载URL（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 报告完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    InventoryReportListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InventoryReport'
+    InboundReportReq:
+      type: object
+      properties:
+        inboundId:
+          type: integer
+          description: 入库记录ID
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+          default: pdf
+      required:
+        - inboundId
+    InboundReportResp:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: 入库报告ID
+        reportDate:
+          type: string
+          format: date-time
+          description: 报告生成时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    InboundReport:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 入库报告ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        reportDate:
+          type: string
+          format: date
+          description: 报告日期
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+        status:
+          type: string
+          description: 报告状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 报告下载URL（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 报告完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    InboundReportListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InboundReport'
+    OutboundReportReq:
+      type: object
+      properties:
+        outboundId:
+          type: integer
+          description: 出库记录ID
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+          default: pdf
+      required:
+        - outboundId
+    OutboundReportResp:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: 出库报告ID
+        reportDate:
+          type: string
+          format: date-time
+          description: 报告生成时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    OutboundReport:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 出库报告ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        reportDate:
+          type: string
+          format: date
+          description: 报告日期
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+        status:
+          type: string
+          description: 报告状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 报告下载URL（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 报告完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    OutboundReportListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OutboundReport'
+    NameChange:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 名义变更记录ID
+        nameChangeOrderId:
+          type: string
+          description: 名义变更订单ID
+        nameChangeDate:
+          type: string
+          format: date
+          description: 名义变更日期
+        nameChangeTime:
+          type: string
+          description: 名义变更时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        customerContactId:
+          type: integer
+          description: 客户联系人ID
+        items:
+          type: array
+          description: 名义变更物品列表
+          items:
+            $ref: '#/components/schemas/NameChangeItem'
+        status:
+          type: string
+          description: 名义变更状态
+          enum:
+            - draft
+            - pending
+            - approved
+            - rejected
+            - cancelled
+    ListNameChangesResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/NameChange'
+    ListNameChangeItemsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/NameChangeItem'
+    NameChangeItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 名义变更物品ID
+        nameChangeId:
+          type: integer
+          description: 名义变更记录ID
+        nameChange:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 名义变更记录ID
+            nameChangeOrderId:
+              type: string
+              description: 名义变更订单ID
+            nameChangeDate:
+              type: string
+              format: date
+              description: 名义变更日期
+            warehouse:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 仓库ID
+                name:
+                  type: string
+                  description: 仓库名称
+            customer:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 客户ID
+                name:
+                  type: string
+                  description: 客户名称
+        inboundItemId:
+          type: integer
+          description: 入库物品ID
+        inventoryItemId:
+          type: integer
+          description: 库存物品ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+            dimension:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: 尺寸描述
+                length:
+                  type: number
+                  description: 长度
+                width:
+                  type: number
+                  description: 宽度
+                height:
+                  type: number
+                  description: 高度
+                lengthUnit:
+                  type: string
+                  description: 长度单位
+                  enum:
+                    - cm
+                    - m
+                weight:
+                  type: number
+                  description: 重量
+                weightUnit:
+                  type: string
+                  description: 重量单位
+                  enum:
+                    - kg
+                    - g
+        lotNumber:
+          type: string
+          description: 批次号
+        inventoryQuantity:
+          type: integer
+          description: 库存数量
+        quantity:
+          type: integer
+          description: 名义变更数量
+        note:
+          type: string
+          description: 备注
+    NameChangeReportReq:
+      type: object
+      properties:
+        nameChangeId:
+          type: integer
+          description: 名义变更记录ID
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+          default: pdf
+      required:
+        - nameChangeId
+    NameChangeReportResp:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: 名义变更报告ID
+        reportDate:
+          type: string
+          format: date-time
+          description: 报告生成时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    NameChangeReport:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 名义变更报告ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        reportDate:
+          type: string
+          format: date
+          description: 报告日期
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - pdf
+            - excel
+        status:
+          type: string
+          description: 报告状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 报告下载URL（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 报告完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    NameChangeReportListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/NameChangeReport'
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 发票ID
+        invoiceNumber:
+          type: string
+          description: 发票编号
+        status:
+          type: string
+          description: 发票状态
+          enum:
+            - draft
+            - issued
+            - cancelled
+            - paid
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        dueDate:
+          type: string
+          format: date
+          description: 付款截止日期
+        issueDate:
+          type: string
+          format: date-time
+          description: 发票下发时间
+        currency:
+          type: string
+          description: 结算币种，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        subtotalAmount:
+          type: number
+          format: float
+          description: 商品小计金额
+        taxAmount:
+          type: number
+          format: float
+          description: 税额
+        totalAmount:
+          type: number
+          format: float
+          description: 总金额
+        outboundId:
+          type: integer
+          description: 关联的出库单ID
+        items:
+          type: array
+          description: 发票明细行
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+        notes:
+          type: string
+          description: 备注
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新时间
+    InvoiceLineItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 发票明细ID
+        outboundId:
+          type: integer
+          description: 出库记录ID
+        outboundOrderId:
+          type: string
+          description: 出库订单编号
+        outboundDate:
+          type: string
+          format: date
+          description: 出库日期
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+        quantity:
+          type: integer
+          description: 计费数量
+        unitPrice:
+          type: number
+          format: float
+          description: 计费单价
+        currency:
+          type: string
+          description: 结算币种，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        lineAmount:
+          type: number
+          format: float
+          description: 行金额
+        taxAmount:
+          type: number
+          format: float
+          description: 行税额
+        note:
+          type: string
+          description: 备注
+    CreateInvoiceReq:
+      type: object
+      required:
+        - customerId
+        - outboundId
+      properties:
+        customerId:
+          type: integer
+          description: 客户ID
+        outboundId:
+          type: integer
+          description: 需要生成发票的出库单ID
+        dueDate:
+          type: string
+          format: date
+          description: 付款截止日期
+        currency:
+          type: string
+          description: 结算币种，仅支持JPY，缺省为JPY
+          enum:
+            - JPY
+          default: JPY
+        autoIssue:
+          type: boolean
+          description: 创建后是否自动下发
+          default: false
+        notes:
+          type: string
+          description: 补充说明
+    ListInvoicesResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Invoice'
+    IssueInvoiceReq:
+      type: object
+      properties:
+        issueDate:
+          type: string
+          format: date-time
+          description: 发票下发时间
+        message:
+          type: string
+          description: 下发时附带的消息
+    CancelInvoiceReq:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: 取消原因
+    Container:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 集装箱ID
+        containerNumber:
+          type: string
+          description: 集装箱号
+        shippingLine:
+          type: string
+          description: 船公司
+        vesselName:
+          type: string
+          description: 船名
+        voyageNumber:
+          type: string
+          description: 航次号
+        arrivalDate:
+          type: string
+          format: date
+          description: 到港日期
+        clearanceDate:
+          type: string
+          format: date
+          description: 清关日期
+        dischargeDate:
+          type: string
+          format: date
+          description: 卸货日期
+        returnDate:
+          type: string
+          format: date
+          description: 空箱归还日期
+        items:
+          type: array
+          description: 集装箱物品列表
+          items:
+            $ref: '#/components/schemas/ContainerItem'
+        status:
+          type: string
+          enum:
+            - shipping
+            - arrived
+            - customsClearance
+            - discharging
+            - discharged
+            - empty
+            - returned
+            - canceled
+          description: |
+            集装箱状态
+            shipping: 在途
+            arrived: 已到港
+            customsClearance: 清关中
+            discharging: 卸货中
+            discharged: 已卸货
+            empty: 空箱
+            returned: 已归还
+            canceled: 已取消
+    ContainerItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 集装箱货物ID
+        containerId:
+          type: integer
+          description: 集装箱ID
+        container:
+          $ref: '#/components/schemas/Container'
+        productId:
+          type: integer
+          description: 货物ID
+        product:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+        quantity:
+          type: integer
+          description: 数量
+        manufactureDate:
+          type: string
+          format: date
+          description: 生产日期
+        bestBeforeDate:
+          type: string
+          format: date
+          description: 最佳风味期限
+    ListContainersResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Container'
+    CreateContainerReq:
+      allOf:
+        - $ref: '#/components/schemas/Container'
+    CreateContainerResp:
+      allOf:
+        - $ref: '#/components/schemas/Container'
+    GetContainerResp:
+      allOf:
+        - $ref: '#/components/schemas/Container'

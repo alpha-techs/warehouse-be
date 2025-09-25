@@ -76,10 +76,16 @@ final class OutboundController extends Controller
         $data = Arr::only($formData, [
            'outboundOrderId',
            'outboundDate',
+           'carrierName',
+           'currency',
+           'subtotalAmount',
+           'taxAmount',
+           'totalAmount',
         ]);
         $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
         $data['customerId'] = Arr::get($formData, 'customer.id');
         $data['status'] = OutboundStatus::PENDING;
+        $data['items'] = [];
         foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
                 'inboundItemId',
@@ -87,6 +93,10 @@ final class OutboundController extends Controller
                 'quantity',
                 'lotNumber',
                 'note',
+                'unitPrice',
+                'lineAmount',
+                'taxAmount',
+                'currency',
             ]);
             $itemData['productId'] = Arr::get($item, 'product.id');
             $data['items'][] = $itemData;
@@ -107,10 +117,16 @@ final class OutboundController extends Controller
         $data = Arr::only($formData, [
             'outboundOrderId',
             'outboundDate',
+            'carrierName',
+            'currency',
+            'subtotalAmount',
+            'taxAmount',
+            'totalAmount',
         ]);
         $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
         $data['customerId'] = Arr::get($formData, 'customer.id');
 
+        $data['items'] = [];
         foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
                 'id',
@@ -119,6 +135,10 @@ final class OutboundController extends Controller
                 'quantity',
                 'lotNumber',
                 'note',
+                'unitPrice',
+                'lineAmount',
+                'taxAmount',
+                'currency',
             ]);
             $itemData['productId'] = Arr::get($item, 'product.id');
             $data['items'][] = $itemData;

@@ -4,6 +4,7 @@ use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InboundController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\NameChangeController;
 use App\Http\Controllers\OutboundController;
@@ -67,6 +68,13 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('inventory/outboundReport/generate', [OutboundController::class, 'generateOutboundReport']);
     Route::get('inventory/outboundReports/{id}/status', [OutboundController::class, 'getOutboundReportStatus']);
     Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
+
+    // 结算 - 发票
+    Route::get('billing/invoices', [InvoiceController::class, 'getInvoices']);
+    Route::post('billing/invoice', [InvoiceController::class, 'createInvoice']);
+    Route::get('billing/invoice/{id}', [InvoiceController::class, 'getInvoice']);
+    Route::post('billing/invoice/{id}/issue', [InvoiceController::class, 'issueInvoice']);
+    Route::post('billing/invoice/{id}/cancel', [InvoiceController::class, 'cancelInvoice']);
 
     // 名义变更
     Route::get('inventory/nameChanges', [NameChangeController::class, 'getNameChanges']);
