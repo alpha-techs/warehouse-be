@@ -9,6 +9,8 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePrintController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\NameChangeController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderPrintController;
 use App\Http\Controllers\OutboundController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WarehouseController;
@@ -73,6 +75,23 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('inventory/outboundReport/generate', [OutboundController::class, 'generateOutboundReport']);
     Route::get('inventory/outboundReports/{id}/status', [OutboundController::class, 'getOutboundReportStatus']);
     Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
+
+    // 采购 - 注文书
+    Route::get('procurement/orders', [OrderController::class, 'getOrders']);
+    Route::post('procurement/order', [OrderController::class, 'createOrder']);
+    Route::get('procurement/order/{id}', [OrderController::class, 'getOrder']);
+    Route::put('procurement/order/{id}', [OrderController::class, 'updateOrder']);
+    Route::delete('procurement/order/{id}', [OrderController::class, 'cancelOrder']);
+    Route::post('procurement/order/{id}/submit', [OrderController::class, 'submitOrder']);
+    Route::post('procurement/order/{id}/send', [OrderController::class, 'sendOrder']);
+    Route::post('procurement/order/{id}/complete', [OrderController::class, 'completeOrder']);
+    Route::post('procurement/order/{id}/cancel', [OrderController::class, 'cancelOrderAction']);
+
+    // 采购 - 注文打印版
+    Route::get('procurement/orderPrints', [OrderPrintController::class, 'getOrderPrints']);
+    Route::post('procurement/orderPrint/generate', [OrderPrintController::class, 'generateOrderPrint']);
+    Route::get('procurement/orderPrints/{printId}/status', [OrderPrintController::class, 'getOrderPrintStatus']);
+    Route::get('procurement/orderPrints/{printId}/download', [OrderPrintController::class, 'downloadOrderPrint']);
 
     // 结算 - 发票
     Route::get('billing/invoices', [InvoiceController::class, 'getInvoices']);

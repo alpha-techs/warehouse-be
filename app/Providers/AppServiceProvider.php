@@ -10,6 +10,8 @@ use App\Contracts\Services\InvoicePrintServiceInterface;
 use App\Contracts\Services\InvoiceServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\NameChangeServiceInterface;
+use App\Contracts\Services\OrderPrintServiceInterface;
+use App\Contracts\Services\OrderServiceInterface;
 use App\Contracts\Services\OutboundServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
 use App\Services\ContainerService;
@@ -20,6 +22,8 @@ use App\Services\InvoicePrintService;
 use App\Services\InvoiceService;
 use App\Services\InventoryService;
 use App\Services\NameChangeService;
+use App\Services\OrderPrintService;
+use App\Services\OrderService;
 use App\Services\OutboundService;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +54,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(InvoicePrintServiceInterface::class, InvoicePrintService::class);
         $this->app->bind(InventoryServiceInterface::class, InventoryService::class);
         $this->app->bind(NameChangeServiceInterface::class, NameChangeService::class);
+        $this->app->bind(OrderServiceInterface::class, OrderService::class);
+        $this->app->bind(OrderPrintServiceInterface::class, OrderPrintService::class);
         $this->app->bind(OutboundServiceInterface::class, OutboundService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
 

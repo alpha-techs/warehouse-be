@@ -2144,6 +2144,447 @@ paths:
           description: 下载链接已过期
         '500':
           description: 服务器内部错误
+  /procurement/orders:
+    get:
+      summary: 获取注文列表
+      operationId: listOrders
+      tags:
+        - 采购
+      description: |
+        获取注文书列表，支持按订单编号、客户和状态等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: orderNumber
+          in: query
+          description: 注文编号筛选
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 状态筛选
+          schema:
+            type: string
+            enum:
+              - draft
+              - requested
+              - sent
+              - completed
+              - cancelled
+        - name: deliveryDueStart
+          in: query
+          description: 纳期开始筛选
+          schema:
+            type: string
+            format: date
+        - name: deliveryDueEnd
+          in: query
+          description: 纳期结束筛选
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取注文列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrdersResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /procurement/order:
+    post:
+      summary: 创建注文书
+      operationId: createOrder
+      tags:
+        - 采购
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderReq'
+      responses:
+        '200':
+          description: 成功创建注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 客户不存在
+        '409':
+          description: 注文明细不合法
+        '500':
+          description: 服务器内部错误
+  '/procurement/order/{id}':
+    get:
+      summary: 注文详情
+      operationId: getOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功获取注文详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+    put:
+      summary: 更新注文书
+      operationId: updateOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderReq'
+      responses:
+        '200':
+          description: 成功更新注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 注文不存在
+        '409':
+          description: 注文状态不允许修改
+    delete:
+      summary: 取消注文书
+      operationId: cancelOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功取消注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+        '409':
+          description: 当前状态不允许取消
+  '/procurement/order/{id}/submit':
+    post:
+      summary: 提交注文书
+      operationId: submitOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功提交注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+        '409':
+          description: 当前状态不允许提交
+        '500':
+          description: 服务器内部错误
+  '/procurement/order/{id}/send':
+    post:
+      summary: 下发注文书
+      operationId: sendOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功下发注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+        '409':
+          description: 当前状态不允许下发
+        '500':
+          description: 服务器内部错误
+  '/procurement/order/{id}/complete':
+    post:
+      summary: 完成注文书
+      operationId: completeOrder
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功完成注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+        '409':
+          description: 当前状态不允许完成
+        '500':
+          description: 服务器内部错误
+  '/procurement/order/{id}/cancel':
+    post:
+      summary: 取消注文书
+      operationId: cancelOrderAction
+      tags:
+        - 采购
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 注文ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功取消注文书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 注文不存在
+        '409':
+          description: 当前状态不允许取消
+        '500':
+          description: 服务器内部错误
+  /procurement/orderPrints:
+    get:
+      summary: 获取注文打印任务列表
+      operationId: listOrderPrints
+      tags:
+        - 采购
+      description: |
+        获取注文打印版Excel生成任务的列表，支持按订单编号、客户和状态等条件筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: orderNumber
+          in: query
+          description: 注文编号筛选
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 打印任务状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 开始日期筛选（任务创建时间）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 结束日期筛选（任务创建时间）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取注文打印任务列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPrintListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /procurement/orderPrint/generate:
+    post:
+      summary: 生成注文打印版Excel
+      operationId: generateOrderPrint
+      tags:
+        - 采购
+      description: |
+        生成指定注文书的打印版Excel文件。
+        打印任务将异步执行，返回任务ID用于查询状态和下载。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPrintReq'
+      responses:
+        '202':
+          description: 注文打印任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPrintResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 注文不存在
+        '409':
+          description: 注文状态不支持生成打印版
+        '500':
+          description: 服务器内部错误
+  '/procurement/orderPrints/{printId}/status':
+    get:
+      summary: 获取注文打印任务状态
+      operationId: getOrderPrintStatus
+      tags:
+        - 采购
+      description: |
+        根据打印任务ID获取生成状态。
+        可用于轮询检查注文打印版是否生成完成。
+      parameters:
+        - name: printId
+          in: path
+          required: true
+          description: 注文打印任务ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取注文打印任务状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPrint'
+        '404':
+          description: 打印任务不存在
+        '500':
+          description: 服务器内部错误
+  '/procurement/orderPrints/{printId}/download':
+    get:
+      summary: 下载注文打印版
+      operationId: downloadOrderPrint
+      tags:
+        - 采购
+      description: |
+        下载已生成的注文打印版Excel文件。
+      parameters:
+        - name: printId
+          in: path
+          required: true
+          description: 注文打印任务ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载注文打印版文件
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                order_print_excel:
+                  summary: 注文打印版Excel
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="order_print_20240115.xlsx"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 打印任务不存在或尚未生成完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
   /containers:
     get:
       summary: 获取集装箱列表
@@ -4038,6 +4479,363 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/InvoicePrint'
+          additionalProperties: false
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 注文ID
+        orderNumber:
+          type: string
+          description: 注文编号
+        status:
+          type: string
+          description: 状态
+          enum:
+            - draft
+            - requested
+            - sent
+            - completed
+            - cancelled
+        customer:
+          type: object
+          description: 客户信息
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+          additionalProperties: false
+        deliveryDueDate:
+          type: string
+          format: date
+          description: 纳期
+        deliveryAddress:
+          $ref: '#/components/schemas/Address'
+        contactName:
+          type: string
+          description: 负责人姓名
+        contactPhone:
+          type: string
+          description: 联系电话
+        items:
+          type: array
+          description: 注文明细列表
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        totalAmount:
+          type: number
+          format: float
+          description: 总金额（未含税）
+        currency:
+          type: string
+          description: 货币，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        notes:
+          type: string
+          description: 备注
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新时间
+      additionalProperties: false
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 注文明细ID
+        product:
+          type: object
+          description: 商品信息
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            name:
+              type: string
+              description: 商品名称
+            sku:
+              type: string
+              description: 商品SKU
+          additionalProperties: false
+        quantity:
+          type: number
+          format: float
+          description: 订购数量
+        unit:
+          type: string
+          description: 计量单位
+        unitPrice:
+          type: number
+          format: float
+          description: 单价（未含税）
+        currency:
+          type: string
+          description: 货币，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        lineAmount:
+          type: number
+          format: float
+          description: 明细金额（未含税）
+        note:
+          type: string
+          description: 明细备注
+      additionalProperties: false
+    OrderItemInput:
+      type: object
+      properties:
+        productId:
+          type: integer
+          description: 商品ID
+        quantity:
+          type: number
+          format: float
+          description: 订购数量
+        unit:
+          type: string
+          description: 计量单位
+        unitPrice:
+          type: number
+          format: float
+          description: 单价（未含税）
+        currency:
+          type: string
+          description: 货币，仅支持JPY
+          enum:
+            - JPY
+          default: JPY
+        note:
+          type: string
+          description: 明细备注
+      additionalProperties: false
+      required:
+        - productId
+        - quantity
+        - unit
+        - unitPrice
+    CreateOrderReq:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          description: 客户ID
+        deliveryDueDate:
+          type: string
+          format: date
+          description: 纳期
+        deliveryAddress:
+          $ref: '#/components/schemas/Address'
+        contactName:
+          type: string
+          description: 负责人姓名
+        contactPhone:
+          type: string
+          description: 联系电话
+        items:
+          type: array
+          description: 注文明细
+          items:
+            $ref: '#/components/schemas/OrderItemInput'
+          minItems: 1
+        notes:
+          type: string
+          description: 备注
+      additionalProperties: false
+      required:
+        - customerId
+        - deliveryDueDate
+        - deliveryAddress
+        - contactName
+        - contactPhone
+        - items
+    UpdateOrderReq:
+      type: object
+      description: 注文更新请求，可部分更新字段
+      properties:
+        deliveryDueDate:
+          type: string
+          format: date
+          description: 纳期
+        deliveryAddress:
+          $ref: '#/components/schemas/Address'
+        contactName:
+          type: string
+          description: 负责人姓名
+        contactPhone:
+          type: string
+          description: 联系电话
+        items:
+          type: array
+          description: 注文明细
+          items:
+            $ref: '#/components/schemas/OrderItemInput'
+          minItems: 1
+        notes:
+          type: string
+          description: 备注
+      additionalProperties: false
+      minProperties: 1
+    ListOrdersResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Order'
+          additionalProperties: false
+    OrderPrintReq:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          description: 需要生成打印版的注文ID
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+          default: excel
+      additionalProperties: false
+      required:
+        - orderId
+    OrderPrintResp:
+      type: object
+      properties:
+        printId:
+          type: string
+          description: 打印任务ID
+        order:
+          type: object
+          description: 注文关键信息
+          properties:
+            id:
+              type: integer
+              description: 注文ID
+            orderNumber:
+              type: string
+              description: 注文编号
+            status:
+              type: string
+              description: 注文状态
+              enum:
+                - draft
+                - requested
+                - sent
+                - completed
+                - cancelled
+          additionalProperties: false
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+      additionalProperties: false
+    OrderPrint:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 注文打印任务ID
+        order:
+          type: object
+          description: 注文关键信息
+          properties:
+            id:
+              type: integer
+              description: 注文ID
+            orderNumber:
+              type: string
+              description: 注文编号
+            status:
+              type: string
+              description: 注文状态
+              enum:
+                - draft
+                - requested
+                - sent
+                - completed
+                - cancelled
+            customer:
+              type: object
+              description: 客户信息
+              properties:
+                id:
+                  type: integer
+                  description: 客户ID
+                name:
+                  type: string
+                  description: 客户名称
+              additionalProperties: false
+            deliveryDueDate:
+              type: string
+              format: date
+              description: 纳期
+            contactName:
+              type: string
+              description: 负责人姓名
+            contactPhone:
+              type: string
+              description: 联系电话
+          additionalProperties: false
+        format:
+          type: string
+          description: 打印文件格式
+          enum:
+            - excel
+        status:
+          type: string
+          description: 打印任务状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 下载链接（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 任务创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 任务完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+      additionalProperties: false
+    OrderPrintListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderPrint'
           additionalProperties: false
     Container:
       type: object

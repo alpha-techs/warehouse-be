@@ -6,6 +6,7 @@ use App\Models\InboundReport;
 use App\Models\InventoryReport;
 use App\Models\InvoicePrint;
 use App\Models\NameChangeReport;
+use App\Models\OrderPrint;
 use App\Models\OutboundReport;
 use App\Support\DocumentStorage;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class DocumentDownloadController extends Controller
         'inbound-report' => InboundReport::class,
         'name-change-report' => NameChangeReport::class,
         'invoice-print' => InvoicePrint::class,
+        'order-print' => OrderPrint::class,
     ];
 
     public function show(string $type, string $id): JsonResponse
