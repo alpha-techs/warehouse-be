@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\Services\AuthServiceInterface;
 use App\Contracts\Services\ContainerServiceInterface;
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\DashboardServiceInterface;
@@ -14,6 +15,7 @@ use App\Contracts\Services\OrderPrintServiceInterface;
 use App\Contracts\Services\OrderServiceInterface;
 use App\Contracts\Services\OutboundServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
+use App\Services\AuthService;
 use App\Services\ContainerService;
 use App\Services\CustomerService;
 use App\Services\DashboardService;
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Services
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(ContainerServiceInterface::class, ContainerService::class);
         $this->app->bind(CustomerServiceInterface::class, CustomerService::class);
         $this->app->bind(DashboardServiceInterface::class, DashboardService::class);

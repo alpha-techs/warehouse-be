@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('order_prints', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete()->comment('注文ID');
+            $table->unsignedBigInteger('order_id')->comment('注文ID');
             $table->string('format', 32)->default('excel')->comment('打印文件格式');
             $table->string('status', 32)->default('pending')->comment('任务状态');
             $table->string('storage', 32)->default('local')->comment('存储类型');

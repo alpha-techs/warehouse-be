@@ -13,6 +13,137 @@ security:
   - oauth2: []
   - bearerAuth: []
 paths:
+  /auth/login:
+    post:
+      summary: 用户登录
+      operationId: login
+      tags:
+        - 认证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginReq'
+            examples:
+              default:
+                value:
+                  email: employee@example.com
+                  password: Secret123!
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResp'
+              examples:
+                default:
+                  value:
+                    tokens:
+                      tokenType: Bearer
+                      accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                      expiresIn: 3600
+                      refreshToken: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+                      refreshTokenExpiresIn: 604800
+                    employee:
+                      id: emp_12345
+                      email: employee@example.com
+                      name: 张三
+                      roles:
+                        - admin
+                        - warehouse_manager
+                      lastLoginAt: '2024-05-06T03:20:00Z'
+                      avatarUrl: 'https://cdn.example.com/avatar/emp_12345.png'
+  /auth/refresh:
+    post:
+      summary: 刷新访问令牌
+      operationId: refreshToken
+      tags:
+        - 认证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenReq'
+            examples:
+              default:
+                value:
+                  refreshToken: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResp'
+              examples:
+                default:
+                  value:
+                    tokens:
+                      tokenType: Bearer
+                      accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                      expiresIn: 3600
+                      refreshToken: Zm9vX3JlZnJlc2hfdG9rZW4
+                      refreshTokenExpiresIn: 604800
+                    employee:
+                      id: emp_12345
+                      email: employee@example.com
+                      name: 张三
+                      roles:
+                        - admin
+                        - warehouse_manager
+                      lastLoginAt: '2024-05-06T03:20:00Z'
+                      avatarUrl: 'https://cdn.example.com/avatar/emp_12345.png'
+  /auth/logout:
+    post:
+      summary: 用户登出
+      operationId: logout
+      tags:
+        - 认证
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutReq'
+            examples:
+              default:
+                value:
+                  refreshToken: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+      responses:
+        '204':
+          description: 登出成功，无返回内容
+  /auth/profile:
+    get:
+      summary: 获取当前登录员工信息
+      operationId: getAuthProfile
+      tags:
+        - 认证
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProfileResp'
+              examples:
+                default:
+                  value:
+                    employee:
+                      id: emp_12345
+                      email: employee@example.com
+                      name: 张三
+                      roles:
+                        - admin
+                        - warehouse_manager
+                      lastLoginAt: '2024-05-06T03:20:00Z'
+                      avatarUrl: 'https://cdn.example.com/avatar/emp_12345.png'
   /dashboard/stats:
     get:
       summary: 获取仪表盘统计数据
@@ -2670,7 +2801,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetCustomerResp'
+                $ref: '#/components/schemas/GetContainerResp'
     put:
       summary: 更新集装箱
       operationId: updateContainer
@@ -2728,6 +2859,155 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    AuthTokens:
+      type: object
+      description: JWT令牌信息
+      required:
+        - tokenType
+        - accessToken
+        - expiresIn
+        - refreshToken
+        - refreshTokenExpiresIn
+      properties:
+        tokenType:
+          type: string
+          description: 令牌类型，通常为Bearer
+          example: Bearer
+        accessToken:
+          type: string
+          description: Access Token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        expiresIn:
+          type: integer
+          format: int64
+          description: Access Token有效期（秒）
+          example: 3600
+        refreshToken:
+          type: string
+          description: Refresh Token
+          example: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+        refreshTokenExpiresIn:
+          type: integer
+          format: int64
+          description: Refresh Token有效期（秒）
+          example: 604800
+    EmployeeProfile:
+      type: object
+      description: 员工基础信息
+      required:
+        - id
+        - email
+        - name
+        - roles
+      properties:
+        id:
+          type: string
+          description: 员工ID
+          example: emp_12345
+        email:
+          type: string
+          format: email
+          description: 员工邮箱
+          example: employee@example.com
+        name:
+          type: string
+          description: 员工姓名
+          example: 张三
+        roles:
+          type: array
+          description: 员工角色列表
+          items:
+            type: string
+          example:
+            - admin
+            - warehouse_manager
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: 上次登录时间
+          example: '2024-05-06T03:20:00Z'
+        avatarUrl:
+          type: string
+          format: uri
+          description: 员工头像链接
+          example: 'https://cdn.example.com/avatar/emp_12345.png'
+    LoginReq:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: 员工邮箱
+          example: employee@example.com
+        password:
+          type: string
+          format: password
+          description: 登录密码
+          example: Secret123!
+    LoginResp:
+      type: object
+      required:
+        - tokens
+        - employee
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokens'
+        employee:
+          $ref: '#/components/schemas/EmployeeProfile'
+      example:
+        tokens:
+          tokenType: Bearer
+          accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+          expiresIn: 3600
+          refreshToken: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+          refreshTokenExpiresIn: 604800
+        employee:
+          id: emp_12345
+          email: employee@example.com
+          name: 张三
+          roles:
+            - admin
+            - warehouse_manager
+          lastLoginAt: '2024-05-06T03:20:00Z'
+          avatarUrl: 'https://cdn.example.com/avatar/emp_12345.png'
+    RefreshTokenReq:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh Token
+          example: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+    LogoutReq:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: 需要失效的Refresh Token
+          example: dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu
+    AuthProfileResp:
+      type: object
+      required:
+        - employee
+      properties:
+        employee:
+          $ref: '#/components/schemas/EmployeeProfile'
+      example:
+        employee:
+          id: emp_12345
+          email: employee@example.com
+          name: 张三
+          roles:
+            - admin
+            - warehouse_manager
+          lastLoginAt: '2024-05-06T03:20:00Z'
+          avatarUrl: 'https://cdn.example.com/avatar/emp_12345.png'
     Address:
       type: object
       description: 地址

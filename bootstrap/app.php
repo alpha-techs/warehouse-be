@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateToken;
 use App\Http\Middleware\LogIdMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(LogIdMiddleware::class);
+        $middleware->alias([
+            'auth.token' => AuthenticateToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

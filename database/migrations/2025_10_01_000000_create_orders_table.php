@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('order_number', 64)->unique()->comment('注文编号');
             $table->string('status', 32)->default('draft')->index()->comment('注文状态');
-            $table->foreignId('customer_id')->constrained()->restrictOnDelete()->comment('客户ID');
+            $table->unsignedBigInteger('customer_id')->comment('客户ID');
             $table->string('customer_name')->nullable()->comment('客户名称');
             $table->date('delivery_due_date')->comment('纳期');
             $table->string('delivery_postal_code')->nullable()->comment('纳品邮编');

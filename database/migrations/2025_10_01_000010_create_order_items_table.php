@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete()->comment('注文ID');
-            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete()->comment('商品ID');
+            $table->unsignedBigInteger('order_id')->comment('注文ID');
+            $table->unsignedBigInteger('product_id')->nullable()->comment('商品ID');
             $table->string('product_name')->nullable()->comment('商品名称');
             $table->string('product_sku')->nullable()->comment('商品SKU');
             $table->decimal('quantity', 12, 3)->default(0)->comment('数量');
