@@ -12,20 +12,54 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
- * @property string $order_number
- * @property OrderStatus $status
- * @property int $customer_id
- * @property string|null $customer_name
- * @property \Illuminate\Support\Carbon $delivery_due_date
- * @property string|null $delivery_postal_code
- * @property string|null $delivery_detail_address1
- * @property string|null $delivery_detail_address2
- * @property string $contact_name
- * @property string $contact_phone
- * @property string $currency
- * @property float $total_amount
- * @property string|null $notes
- * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property string $order_number 注文编号
+ * @property OrderStatus $status 注文状态
+ * @property int $customer_id 客户ID
+ * @property string|null $customer_name 客户名称
+ * @property \Illuminate\Support\Carbon $delivery_due_date 纳期
+ * @property string|null $delivery_postal_code 纳品邮编
+ * @property string|null $delivery_detail_address1 纳品地址1
+ * @property string|null $delivery_detail_address2 纳品地址2
+ * @property string $contact_name 负责人姓名
+ * @property string $contact_phone 联系电话
+ * @property string $currency 币种
+ * @property float $total_amount 合计金额（未含税）
+ * @property string|null $notes 备注
+ * @property \Illuminate\Support\Carbon|null $cancelled_at 取消时间
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Customer|null $customer
+ * @property mixed|null $delivery_address
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
+ * @property-read int|null $items_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCancelledAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereContactName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereContactPhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCustomerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDetailAddress1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDetailAddress2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryPostalCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withoutTrashed()
+ * @mixin \Eloquent
+ * @noinspection PhpFullyQualifiedNameUsageInspection
+ * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
  */
 #[ObservedBy(OrderObserver::class)]
 class Order extends BaseModel
