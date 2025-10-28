@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExpressSampleShipmentReport;
 use App\Models\InboundReport;
 use App\Models\InventoryReport;
 use App\Models\InvoicePrint;
@@ -22,6 +23,7 @@ class DocumentDownloadController extends Controller
         'name-change-report' => NameChangeReport::class,
         'invoice-print' => InvoicePrint::class,
         'order-print' => OrderPrint::class,
+        'express-sample-shipment-report' => ExpressSampleShipmentReport::class,
     ];
 
     public function show(string $type, string $id): JsonResponse

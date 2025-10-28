@@ -1044,6 +1044,409 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOutboundItemsResp'
+  /inventory/expressSampleShipments:
+    get:
+      summary: Express sample shipment list
+      operationId: listExpressSampleShipments
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          description: Express sample shipment status
+          schema:
+            type: string
+            enum:
+              - draft
+              - pending
+              - approved
+              - rejected
+              - cancelled
+              - booked
+              - dispatched
+              - delivered
+        - name: customerId
+          in: query
+          description: 客户ID
+          schema:
+            type: integer
+        - name: desiredDeliveryDateFrom
+          in: query
+          description: 送达日期起始
+          schema:
+            type: string
+            format: date
+        - name: desiredDeliveryDateTo
+          in: query
+          description: 送达日期结束
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExpressSampleShipmentsResp'
+  /inventory/expressSampleShipment:
+    post:
+      summary: 创建急送样品出库
+      operationId: createExpressSampleShipment
+      tags:
+        - 库存
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpressSampleShipment'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+  '/inventory/expressSampleShipment/{id}':
+    get:
+      summary: Express sample shipment detail
+      operationId: getExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+    put:
+      summary: 更新Express Sample出库
+      operationId: updateExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpressSampleShipment'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+    delete:
+      summary: 删除Express Sample出库
+      operationId: deleteExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+  '/inventory/expressSampleShipment/{id}/approve':
+    post:
+      summary: 确认Express Sample出库
+      operationId: approveExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+  '/inventory/expressSampleShipment/{id}/reject':
+    post:
+      summary: 驳回Express Sample出库
+      operationId: rejectExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+  '/inventory/expressSampleShipment/{id}/cancel':
+    post:
+      summary: 取消Express Sample出库
+      operationId: cancelExpressSampleShipment
+      tags:
+        - 库存
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            description: Express sample shipment ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+  /inventory/expressSampleShipmentItems:
+    get:
+      summary: Express sample shipment item list
+      operationId: listExpressSampleShipmentItems
+      tags:
+        - 库存
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+        - name: expressSampleShipmentId
+          in: query
+          description: Express sample shipment ID
+          schema:
+            type: integer
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+        - name: desiredDeliveryDate
+          in: query
+          description: 希望送达日期
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExpressSampleShipmentItemsResp'
+  /inventory/expressSampleShipmentReports:
+    get:
+      summary: 获取Express Sample出库报告列表
+      operationId: listExpressSampleShipmentReports
+      tags:
+        - Express Sample报告
+      description: |
+        获取Express Sample出库的历史报告列表，支持按仓库、客户和状态筛选。
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: warehouseId
+          in: query
+          description: 仓库ID筛选
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          description: 客户ID筛选
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: 报告状态筛选
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+        - name: startDate
+          in: query
+          description: 报告生成开始日期
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: 报告生成结束日期
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 成功获取Express Sample出库报告列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipmentReportListResp'
+        '400':
+          description: 请求参数错误
+        '500':
+          description: 服务器内部错误
+  /inventory/expressSampleShipmentReport/generate:
+    post:
+      summary: 生成Express Sample出库报告
+      operationId: generateExpressSampleShipmentReport
+      tags:
+        - Express Sample报告
+      description: |
+        提交生成Express Sample出库的Excel报告任务。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpressSampleShipmentReportReq'
+      responses:
+        '202':
+          description: Express Sample出库报告生成任务已接受
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipmentReportResp'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: Express Sample出库记录不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/expressSampleShipmentReports/{reportId}/status':
+    get:
+      summary: 获取Express Sample出库报告生成状态
+      operationId: getExpressSampleShipmentReportStatus
+      tags:
+        - Express Sample报告
+      description: |
+        根据报告ID获取Express Sample出库报告的生成状态。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: Express Sample出库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取Express Sample出库报告状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressSampleShipmentReport'
+        '404':
+          description: 报告不存在
+        '500':
+          description: 服务器内部错误
+  '/inventory/expressSampleShipmentReports/{reportId}/download':
+    get:
+      summary: 下载Express Sample出库报告
+      operationId: downloadExpressSampleShipmentReport
+      tags:
+        - Express Sample报告
+      description: |
+        直接返回已生成的Express Sample出库报告Excel文件内容。
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          description: Express Sample出库报告ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功下载Express Sample出库报告文件
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+              examples:
+                excel_report:
+                  summary: Express Sample出库报告（Excel）
+          headers:
+            Content-Disposition:
+              description: 文件下载附件头
+              schema:
+                type: string
+                example: attachment; filename="express_sample_shipment_report.xlsx"
+            Content-Length:
+              description: 文件大小
+              schema:
+                type: integer
+        '404':
+          description: 报告不存在或未完成
+        '410':
+          description: 下载链接已过期
+        '500':
+          description: 服务器内部错误
   /inventory/list:
     get:
       summary: 库存列表
@@ -3249,16 +3652,11 @@ components:
         - mediaId
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
           description: 商品图片记录ID
         mediaId:
           type: string
           description: 媒体图片ID，用于通过媒体服务访问
-        url:
-          type: string
-          format: uri
-          description: 媒体服务代理访问地址
         order:
           type: integer
           description: 图片顺序，值越小越靠前
@@ -3299,7 +3697,6 @@ components:
       type: object
       required:
         - mediaId
-        - url
       properties:
         mediaId:
           type: string
@@ -3897,6 +4294,356 @@ components:
         note:
           type: string
           description: 备注
+    ExpressSampleShipment:
+      type: object
+      description: Express sample urgent shipment record
+      properties:
+        id:
+          type: integer
+          description: Express sample shipment ID
+        expressSampleOrderId:
+          type: string
+          description: Express sample order number
+        status:
+          type: string
+          description: Express sample shipment status
+          enum:
+            - draft
+            - pending
+            - approved
+            - rejected
+            - cancelled
+            - booked
+            - dispatched
+            - delivered
+        requestedShipDate:
+          type: string
+          format: date
+          description: 希望出库日期
+        desiredDeliveryDate:
+          type: string
+          format: date
+          description: 希望送达日期
+        desiredDeliveryTimeWindow:
+          type: string
+          description: 希望送达时间段
+          enum:
+            - morning
+            - noon
+            - afternoon
+            - evening
+            - anytime
+        warehouse:
+          type: object
+          description: 发货仓库信息
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          description: 归属客户信息
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        customerContactId:
+          type: integer
+          description: 客户联系人ID
+        recipient:
+          type: object
+          description: 收件人信息
+          properties:
+            companyName:
+              type: string
+              description: 收件公司名称
+            department:
+              type: string
+              description: 收件部门
+            name:
+              type: string
+              description: 收件人姓名
+            phoneNumber:
+              type: string
+              description: 收件人电话
+            postalCode:
+              type: string
+              description: 邮政编码
+            prefecture:
+              type: string
+              description: 都道府县
+            city:
+              type: string
+              description: 市区町村
+            addressLine1:
+              type: string
+              description: 地址行1
+            addressLine2:
+              type: string
+              description: 地址行2
+        deliveryService:
+          type: string
+          description: Express courier service type
+          enum:
+            - regular
+            - cool
+            - frozen
+            - timeValue
+          default: regular
+        packageCount:
+          type: integer
+          description: 包裹箱数
+          minimum: 1
+        packageType:
+          type: string
+          description: 包装类型说明
+        deliveryFeePayer:
+          type: string
+          description: 运费承担方
+          enum:
+            - sender
+            - recipient
+            - thirdParty
+        samplePurpose:
+          type: string
+          description: 样品发送目的
+        emergencyContact:
+          type: object
+          description: 紧急联系人信息
+          properties:
+            name:
+              type: string
+              description: 紧急联系人姓名
+            phoneNumber:
+              type: string
+              description: 紧急联系电话
+        carrierName:
+          type: string
+          description: 承运商名称
+        trackingNumber:
+          type: string
+          description: 追踪编号
+        note:
+          type: string
+          description: 备注
+        items:
+          type: array
+          description: Express sample shipment item list
+          items:
+            $ref: '#/components/schemas/ExpressSampleShipmentItem'
+        createdAt:
+          type: string
+          format: date-time
+          description: 创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新时间
+        dispatchedAt:
+          type: string
+          format: date-time
+          description: 实际发货时间
+        deliveredAt:
+          type: string
+          format: date-time
+          description: 实际送达时间
+    ListExpressSampleShipmentsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExpressSampleShipment'
+    ListExpressSampleShipmentItemsResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExpressSampleShipmentItem'
+    ExpressSampleShipmentItem:
+      type: object
+      description: Express sample shipment item
+      properties:
+        id:
+          type: integer
+          description: Express sample shipment item ID
+        expressSampleShipmentId:
+          type: integer
+          description: Express sample shipment ID
+        inventoryItemId:
+          type: integer
+          description: 库存物品ID
+        inventoryItem:
+          type: object
+          description: 库存物品详情
+          properties:
+            id:
+              type: integer
+              description: 库存物品ID
+            lotNumber:
+              type: string
+              description: 批次号
+            inboundNo:
+              type: string
+              description: 入库编号
+            inboundDate:
+              type: string
+              format: date
+              description: 入库日期
+        product:
+          type: object
+          description: 商品信息
+          properties:
+            id:
+              type: integer
+              description: 商品ID
+            sku:
+              type: string
+              description: SKU 编码
+            name:
+              type: string
+              description: 商品名称
+            specification:
+              type: string
+              description: 规格说明
+        quantity:
+          type: integer
+          description: 发货数量
+          minimum: 1
+        quantityUnit:
+          type: string
+          description: 数量单位
+        samplePackaging:
+          type: string
+          description: 样品包装说明
+        note:
+          type: string
+          description: 备注
+    ExpressSampleShipmentReportReq:
+      type: object
+      properties:
+        expressSampleShipmentId:
+          type: integer
+          description: Express sample shipment ID
+        format:
+          type: string
+          description: Report format
+          enum:
+            - excel
+          default: excel
+      required:
+        - expressSampleShipmentId
+    ExpressSampleShipmentReportResp:
+      type: object
+      properties:
+        reportId:
+          type: string
+          description: Express sample shipment report ID
+        reportDate:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    ExpressSampleShipmentReport:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Express sample shipment report ID
+        warehouse:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 仓库ID
+            name:
+              type: string
+              description: 仓库名称
+        customer:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: 客户ID
+            name:
+              type: string
+              description: 客户名称
+        reportDate:
+          type: string
+          format: date
+          description: 报告日期
+        format:
+          type: string
+          description: 报告格式
+          enum:
+            - excel
+        status:
+          type: string
+          description: 报告状态
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+        downloadUrl:
+          type: string
+          description: 报告下载URL（仅在completed状态时提供）
+        errorMessage:
+          type: string
+          description: 错误信息（仅在failed状态时提供）
+        createdAt:
+          type: string
+          format: date-time
+          description: 报告创建时间
+        completedAt:
+          type: string
+          format: date-time
+          description: 报告完成时间
+        expiresAt:
+          type: string
+          format: date-time
+          description: 下载链接过期时间
+    ExpressSampleShipmentReportListResp:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExpressSampleShipmentReport'
     InventoryReportReq:
       type: object
       properties:

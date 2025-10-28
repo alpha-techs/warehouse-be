@@ -115,4 +115,11 @@ class InventoryItem extends BaseModel
     {
         return $this->hasMany(NameChangeItem::class, 'inventory_item_id', 'id');
     }
+
+    public function expressSampleShipmentItems(): HasMany
+    {
+        return $this
+            ->hasMany(ExpressSampleShipmentItem::class, 'inventory_item_id', 'id')
+            ->orderByDesc('created_at');
+    }
 }

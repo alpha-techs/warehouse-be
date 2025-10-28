@@ -5,6 +5,7 @@ use App\Http\Controllers\ContainerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\ExpressSampleShipmentController;
 use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePrintController;
@@ -84,6 +85,22 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('inventory/outboundReport/generate', [OutboundController::class, 'generateOutboundReport']);
         Route::get('inventory/outboundReports/{id}/status', [OutboundController::class, 'getOutboundReportStatus']);
 
+        // 宅急便样品出库
+        Route::get('inventory/expressSampleShipments', [ExpressSampleShipmentController::class, 'getExpressSampleShipments']);
+        Route::get('inventory/expressSampleShipment/{id}', [ExpressSampleShipmentController::class, 'getExpressSampleShipment']);
+        Route::post('inventory/expressSampleShipment', [ExpressSampleShipmentController::class, 'createExpressSampleShipment']);
+        Route::put('inventory/expressSampleShipment/{id}', [ExpressSampleShipmentController::class, 'updateExpressSampleShipment']);
+        Route::delete('inventory/expressSampleShipment/{id}', [ExpressSampleShipmentController::class, 'deleteExpressSampleShipment']);
+        Route::post('inventory/expressSampleShipment/{id}/approve', [ExpressSampleShipmentController::class, 'approveExpressSampleShipment']);
+        Route::post('inventory/expressSampleShipment/{id}/reject', [ExpressSampleShipmentController::class, 'rejectExpressSampleShipment']);
+        Route::post('inventory/expressSampleShipment/{id}/cancel', [ExpressSampleShipmentController::class, 'cancelExpressSampleShipment']);
+        Route::get('inventory/expressSampleShipmentItems', [ExpressSampleShipmentController::class, 'getExpressSampleShipmentItems']);
+
+        // 宅急便样品报告
+        Route::get('inventory/expressSampleShipmentReports', [ExpressSampleShipmentController::class, 'getExpressSampleShipmentReports']);
+        Route::post('inventory/expressSampleShipmentReport/generate', [ExpressSampleShipmentController::class, 'generateExpressSampleShipmentReport']);
+        Route::get('inventory/expressSampleShipmentReports/{id}/status', [ExpressSampleShipmentController::class, 'getExpressSampleShipmentReportStatus']);
+
         // 采购 - 注文书
         Route::get('procurement/orders', [OrderController::class, 'getOrders']);
         Route::post('procurement/order', [OrderController::class, 'createOrder']);
@@ -155,6 +172,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/nameChangeReports/{id}/download', [NameChangeController::class, 'downloadNameChangeReport']);
         Route::get('procurement/orderPrints/{printId}/download', [OrderPrintController::class, 'downloadOrderPrint']);
         Route::get('inventory/reports/{id}/download', [InventoryController::class, 'downloadReport']);
+        Route::get('inventory/expressSampleShipmentReports/{id}/download', [ExpressSampleShipmentController::class, 'downloadExpressSampleShipmentReport']);
 
         // 媒体图片
         Route::get('media/images/{imageId}', [MediaController::class, 'showImage'])->name('media.images.show');
