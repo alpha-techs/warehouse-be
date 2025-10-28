@@ -110,4 +110,16 @@ class InventoryItem extends BaseModel
             ->orderByDesc('outbound_date')
             ->orderByDesc('id');
     }
+
+    public function nameChangeItems(): HasMany
+    {
+        return $this->hasMany(NameChangeItem::class, 'inventory_item_id', 'id');
+    }
+
+    public function expressSampleShipmentItems(): HasMany
+    {
+        return $this
+            ->hasMany(ExpressSampleShipmentItem::class, 'inventory_item_id', 'id')
+            ->orderByDesc('created_at');
+    }
 }

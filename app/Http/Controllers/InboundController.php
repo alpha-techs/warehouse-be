@@ -228,7 +228,7 @@ final class InboundController extends Controller
             'customer_name' => $inbound->customer?->name,
             'format' => $format,
             'status' => 'pending',
-            'storage' => InboundReport::STORAGE_LOCAL, // 默认使用本地存储
+            'storage' => InboundReport::defaultStorageType(),
         ]);
 
         // 分发异步任务
@@ -276,7 +276,7 @@ final class InboundController extends Controller
         }
 
         // 根据存储类型选择合适的磁盘
-        $disk = $report->isS3Storage() ? 's3' : 'public';
+        $disk = $report->getStorageDisk();
 
         if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($report->file_path)) {
             abort(404, 'Report file not found on storage');

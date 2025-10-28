@@ -65,7 +65,7 @@ class TestOutboundReportGeneration extends Command
             'customer_name' => $outbound->customer?->name,
             'format' => 'pdf',
             'status' => 'pending',
-            'storage' => OutboundReport::STORAGE_LOCAL,
+            'storage' => OutboundReport::defaultStorageType(),
         ]);
 
         $this->info("Created outbound report with ID: {$report->id}");
@@ -91,7 +91,7 @@ class TestOutboundReportGeneration extends Command
 
         if ($report->file_path) {
             $this->info("Report file: {$report->file_path}");
-            $this->info("Download URL: " . url('storage/' . $report->file_path));
+            $this->info('Download URL: ' . ($report->getDownloadUrl() ?? 'N/A'));
         }
 
         if ($report->error_message) {

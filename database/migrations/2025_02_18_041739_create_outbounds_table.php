@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('customer_name')->nullable()->comment('客户名称');
             $table->string('carrier_name')->nullable()->comment('承运商名称');
             $table->string('status')->comment('出库状态');
+            $table->string('currency')->default('JPY')->comment('币种');
+            $table->unsignedInteger('subtotal_amount')->default(0)->comment('商品小计金额');
+            $table->unsignedInteger('tax_amount')->default(0)->comment('税额');
+            $table->unsignedInteger('total_amount')->default(0)->comment('订单总金额');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\dev\ContainerSeeder;
+use Database\Seeders\dev\EmployeeSeeder;
 use Database\Seeders\dev\InboundSeeder;
 use Database\Seeders\dev\ProductSeeder;
 use Database\Seeders\dev\WarehouseSeeder;
@@ -14,6 +15,7 @@ class DevSeeder extends Seeder
     {
         $this->call([
             DatabaseSeeder::class,
+            EmployeeSeeder::class,
             ProductSeeder::class,
             WarehouseSeeder::class,
             ContainerSeeder::class,

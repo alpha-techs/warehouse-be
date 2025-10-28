@@ -2,18 +2,34 @@
 
 namespace App\Providers;
 
+use App\Contracts\Services\AuthServiceInterface;
 use App\Contracts\Services\ContainerServiceInterface;
 use App\Contracts\Services\CustomerServiceInterface;
 use App\Contracts\Services\DashboardServiceInterface;
+use App\Contracts\Services\ExpressSampleShipmentServiceInterface;
 use App\Contracts\Services\InboundServiceInterface;
+use App\Contracts\Services\InvoicePrintServiceInterface;
+use App\Contracts\Services\InvoiceServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
+use App\Contracts\Services\MediaServiceInterface;
+use App\Contracts\Services\NameChangeServiceInterface;
+use App\Contracts\Services\OrderPrintServiceInterface;
+use App\Contracts\Services\OrderServiceInterface;
 use App\Contracts\Services\OutboundServiceInterface;
 use App\Contracts\Services\ProductServiceInterface;
+use App\Services\AuthService;
 use App\Services\ContainerService;
 use App\Services\CustomerService;
 use App\Services\DashboardService;
+use App\Services\ExpressSampleShipmentService;
 use App\Services\InboundService;
+use App\Services\InvoicePrintService;
+use App\Services\InvoiceService;
 use App\Services\InventoryService;
+use App\Services\MediaService;
+use App\Services\NameChangeService;
+use App\Services\OrderPrintService;
+use App\Services\OrderService;
 use App\Services\OutboundService;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\DB;
@@ -36,11 +52,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Services
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(ContainerServiceInterface::class, ContainerService::class);
         $this->app->bind(CustomerServiceInterface::class, CustomerService::class);
         $this->app->bind(DashboardServiceInterface::class, DashboardService::class);
         $this->app->bind(InboundServiceInterface::class, InboundService::class);
+        $this->app->bind(ExpressSampleShipmentServiceInterface::class, ExpressSampleShipmentService::class);
+        $this->app->bind(InvoiceServiceInterface::class, InvoiceService::class);
+        $this->app->bind(InvoicePrintServiceInterface::class, InvoicePrintService::class);
         $this->app->bind(InventoryServiceInterface::class, InventoryService::class);
+        $this->app->bind(MediaServiceInterface::class, MediaService::class);
+        $this->app->bind(NameChangeServiceInterface::class, NameChangeService::class);
+        $this->app->bind(OrderServiceInterface::class, OrderService::class);
+        $this->app->bind(OrderPrintServiceInterface::class, OrderPrintService::class);
         $this->app->bind(OutboundServiceInterface::class, OutboundService::class);
         $this->app->bind(ProductServiceInterface::class, ProductService::class);
 

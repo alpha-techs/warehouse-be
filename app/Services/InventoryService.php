@@ -51,6 +51,7 @@ final class InventoryService implements InventoryServiceInterface
                 'product',
                 'inboundItem.inbound',
                 'outboundItems.outbound',
+                'nameChangeItems.nameChange',
             ])
             ->findOrFail($id);
     }

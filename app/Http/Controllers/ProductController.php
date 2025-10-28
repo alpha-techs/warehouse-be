@@ -6,7 +6,6 @@ use App\Contracts\Services\ProductServiceInterface;
 use App\Http\Requests\Product\GetProductsRequest;
 use App\Http\Requests\Product\UpsertProductRequest;
 use App\Http\Resources\Product\CommonProductResource;
-use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 
 final class ProductController extends Controller
@@ -26,9 +25,12 @@ final class ProductController extends Controller
         return $resource->response();
     }
 
-    public function getProduct($id): JsonResponse
+    public function getProduct(
+        $id,
+        ProductServiceInterface $productService,
+    ): JsonResponse
     {
-        $product = Product::query()->find($id);
+        $product = $productService->getProduct($id);
         $resource = new CommonProductResource($product);
         return $resource->response();
     }

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\DocumentStorage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @property int $id
@@ -131,6 +133,18 @@ class InventoryReport extends BaseModel
         return $this->storage === self::STORAGE_S3;
     }
 
+    public static function defaultStorageType(): string
+    {
+        return DocumentStorage::defaultType() === DocumentStorage::S3
+            ? self::STORAGE_S3
+            : self::STORAGE_LOCAL;
+    }
+
+    public function getStorageDisk(): string
+    {
+        return DocumentStorage::disk($this->storage);
+    }
+
     /**
      * 获取文件下载URL
      */
@@ -145,8 +159,9 @@ class InventoryReport extends BaseModel
         }
 
         if ($this->isS3Storage()) {
-            // 将来支持S3时的逻辑
-            return \Storage::disk('s3')->url($this->file_path);
+            $expiresAt = now()->addSeconds(DocumentStorage::temporaryUrlTtl());
+
+            return Storage::disk($this->getStorageDisk())->temporaryUrl($this->file_path, $expiresAt);
         }
 
         return null;

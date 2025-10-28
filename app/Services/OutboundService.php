@@ -94,6 +94,8 @@ final class OutboundService implements OutboundServiceInterface
      */
     public function createOutbound(array $data): Outbound
     {
+        $data = $this->normalizeOutboundData($data);
+
         return DB::transaction(function () use ($data) {
             $outboundData = Arr::except($data, ['items']);
             $outbound = Outbound::create($outboundData);
@@ -109,6 +111,8 @@ final class OutboundService implements OutboundServiceInterface
      */
     public function updateOutbound(int $id, array $data): Outbound
     {
+        $data = $this->normalizeOutboundData($data);
+
         return DB::transaction(function () use ($id, $data) {
             $outbound = Outbound::query()->with(['items'])->findOrFail($id);
 
@@ -134,6 +138,65 @@ final class OutboundService implements OutboundServiceInterface
             }
             return $outbound;
         });
+    }
+
+    private function normalizeOutboundData(array $data): array
+    {
+        $currency = Arr::get($data, 'currency') ?: 'JPY';
+        $items = Arr::get($data, 'items', []);
+
+        $subtotal = 0;
+        $tax = 0;
+        $normalizedItems = [];
+
+        foreach ($items as $item) {
+            $quantity = (int) Arr::get($item, 'quantity', 0);
+            $unitPrice = $this->castAmount(Arr::get($item, 'unitPrice', 0));
+            $lineAmount = Arr::get($item, 'lineAmount');
+            $lineAmount = is_null($lineAmount)
+                ? $unitPrice * $quantity
+                : $this->castAmount($lineAmount);
+            $taxAmount = $this->castAmount(Arr::get($item, 'taxAmount', 0));
+            $itemCurrency = Arr::get($item, 'currency') ?: $currency;
+
+            $normalizedItems[] = array_merge($item, [
+                'unitPrice' => $unitPrice,
+                'lineAmount' => $lineAmount,
+                'taxAmount' => $taxAmount,
+                'currency' => $itemCurrency,
+            ]);
+
+            $subtotal += $lineAmount;
+            $tax += $taxAmount;
+        }
+
+        $data['currency'] = $currency;
+        $data['items'] = $normalizedItems;
+        $data['subtotalAmount'] = $this->castAmount($subtotal);
+        $data['taxAmount'] = $this->castAmount($tax);
+        $data['totalAmount'] = $this->castAmount($subtotal + $tax);
+
+        return $data;
+    }
+
+    private function castAmount($value): int
+    {
+        if (is_null($value)) {
+            return 0;
+        }
+
+        return (int) round((float) $value);
+    }
+
+    public function getOutbound(int $id): Outbound
+    {
+        return Outbound::query()
+            ->with([
+                'warehouse',
+                'customer',
+                'items.product',
+            ])
+            ->findOrFail($id);
     }
 
     /**

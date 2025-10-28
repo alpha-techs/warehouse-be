@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Contracts\Services\NameChangeServiceInterface;
+use App\Exports\NameChangeExcelExport;
+use App\Models\Customer;
+use App\Models\NameChange;
+use App\Models\NameChangeReport;
+use Exception;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class GenerateNameChangeReportJob implements ShouldQueue
+{
+    use Queueable, InteractsWithQueue, SerializesModels;
+
+    public int $timeout = 300; // 5 minutes
+    public int $tries = 3;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(
+        private readonly int $reportId,
+    ) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(NameChangeServiceInterface $nameChangeService): void
+    {
+        $report = NameChangeReport::find($this->reportId);
+
+        if (!$report) {
+            Log::error('NameChangeReport not found', ['reportId' => $this->reportId]);
+            return;
+        }
+
+        try {
+            $report->markAsProcessing();
+
+            // 获取名义变更数据
+            $nameChangeData = $this->getNameChangeDataForReport($report->name_change_id);
+
+            // 生成报告文件
+            $filePath = $this->generateReportFile($report, $nameChangeData);
+
+            $report->markAsCompleted($filePath);
+
+            Log::info('Name change report generated successfully', [
+                'reportId' => $this->reportId,
+                'filePath' => $filePath,
+            ]);
+
+        } catch (Exception $e) {
+            $report->markAsFailed($e->getMessage());
+
+            Log::error('Failed to generate name change report', [
+                'reportId' => $this->reportId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $report = NameChangeReport::find($this->reportId);
+        if ($report) {
+            $report->markAsFailed($exception->getMessage());
+        }
+    }
+
+    /**
+     * 获取名义变更数据用于生成报告
+     */
+    private function getNameChangeDataForReport(int $nameChangeId): array
+    {
+        $nameChange = NameChange::with([
+            'items.product',
+            'warehouse',
+            'customer'
+        ])->findOrFail($nameChangeId);
+
+        $owner = Customer::firstWhere('id', 1);
+
+        return [
+            'nameChange' => $nameChange,
+            'items' => $nameChange->items,
+            'warehouse' => $nameChange->warehouse,
+            'customer' => $nameChange->customer,
+            'owner' => $owner,
+        ];
+    }
+
+    /**
+     * 生成报告文件
+     */
+    private function generateReportFile(NameChangeReport $report, array $data): string
+    {
+        $format = $report->format;
+        $fileExtension = $report->format === 'pdf' ? 'pdf' : 'xlsx';
+        $fileName = 'name_change_report_' . $report->id . '_' . time() . '.' . $fileExtension;
+
+        if ($format === 'pdf') {
+            return $this->generatePdfReport($report, $data, $fileName);
+        } elseif ($format === 'excel') {
+            return $this->generateExcelReport($report, $data, $fileName);
+        }
+
+        throw new Exception("Unsupported format: {$format}");
+    }
+
+    /**
+     * 生成PDF报告
+     */
+    private function generatePdfReport(NameChangeReport $report, array $data, string $fileName): string
+    {
+        $pdf = Pdf::loadView('reports.name_change_pdf', [
+            'report' => $report,
+            'nameChange' => $data['nameChange'],
+            'items' => $data['items'],
+            'warehouse' => $data['warehouse'],
+            'customer' => $data['customer'],
+            'generatedAt' => now()->format('Y-m-d H:i:s'),
+        ]);
+
+        $pdf->setPaper('A4', 'portrait');
+
+        $filePath = 'reports/name_change/' . $fileName;
+        Storage::disk($report->getStorageDisk())->put($filePath, $pdf->output());
+
+        return $filePath;
+    }
+
+    /**
+     * 生成Excel报告
+     */
+    private function generateExcelReport(NameChangeReport $report, array $data, string $fileName): string
+    {
+        $filePath = 'reports/name_change/' . $fileName;
+
+        // 使用重构后的 NameChangeExcelExport，完全脱离 Laravel Excel
+        $export = new NameChangeExcelExport(
+            nameChange: $data['nameChange'],
+            report: $report,
+            items: $data['items'],
+            warehouse: $data['warehouse'],
+            owner: $data['owner'],
+            customer: $data['customer']
+        );
+
+        $binary = $export->toBinary();
+        Storage::disk($report->getStorageDisk())->put($filePath, $binary);
+
+        return $filePath;
+    }
+
+}

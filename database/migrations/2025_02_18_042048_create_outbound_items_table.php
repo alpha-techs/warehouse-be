@@ -27,6 +27,10 @@ return new class extends Migration
             $table->integer('quantity')->comment('出库数量');
             $table->string('lot_number')->nullable()->comment('批次号');
             $table->string('note', 1024)->nullable()->comment('备注');
+            $table->string('currency')->default('JPY')->comment('币种');
+            $table->unsignedInteger('unit_price')->default(0)->comment('单价');
+            $table->unsignedInteger('line_amount')->default(0)->comment('行金额');
+            $table->unsignedInteger('tax_amount')->default(0)->comment('税额');
             $table->softDeletes();
             $table->timestamps();
         });

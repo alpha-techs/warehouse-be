@@ -20,6 +20,8 @@ use App\Models\Outbound;
 use Arr;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class OutboundController extends Controller
 {
@@ -54,9 +56,12 @@ final class OutboundController extends Controller
         return $jsonResponse->response();
     }
 
-    public function getOutbound($id): JsonResponse
+    public function getOutbound(
+        $id,
+        OutboundServiceInterface $outboundService,
+    ): JsonResponse
     {
-        $outbound = Outbound::query()->with(['items.product', 'warehouse', 'customer'])->find($id);
+        $outbound = $outboundService->getOutbound($id);
         $resource = new CommonOutboundResource($outbound);
         return $resource->response();
     }
@@ -71,10 +76,16 @@ final class OutboundController extends Controller
         $data = Arr::only($formData, [
            'outboundOrderId',
            'outboundDate',
+           'carrierName',
+           'currency',
+           'subtotalAmount',
+           'taxAmount',
+           'totalAmount',
         ]);
         $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
         $data['customerId'] = Arr::get($formData, 'customer.id');
         $data['status'] = OutboundStatus::PENDING;
+        $data['items'] = [];
         foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
                 'inboundItemId',
@@ -82,6 +93,10 @@ final class OutboundController extends Controller
                 'quantity',
                 'lotNumber',
                 'note',
+                'unitPrice',
+                'lineAmount',
+                'taxAmount',
+                'currency',
             ]);
             $itemData['productId'] = Arr::get($item, 'product.id');
             $data['items'][] = $itemData;
@@ -102,10 +117,16 @@ final class OutboundController extends Controller
         $data = Arr::only($formData, [
             'outboundOrderId',
             'outboundDate',
+            'carrierName',
+            'currency',
+            'subtotalAmount',
+            'taxAmount',
+            'totalAmount',
         ]);
         $data['warehouseId'] = Arr::get($formData, 'warehouse.id');
         $data['customerId'] = Arr::get($formData, 'customer.id');
 
+        $data['items'] = [];
         foreach ($formData['items'] as $item) {
             $itemData = Arr::only($item, [
                 'id',
@@ -114,6 +135,10 @@ final class OutboundController extends Controller
                 'quantity',
                 'lotNumber',
                 'note',
+                'unitPrice',
+                'lineAmount',
+                'taxAmount',
+                'currency',
             ]);
             $itemData['productId'] = Arr::get($item, 'product.id');
             $data['items'][] = $itemData;
@@ -227,7 +252,7 @@ final class OutboundController extends Controller
             'customer_name' => $outbound->customer?->name,
             'format' => $format,
             'status' => 'pending',
-            'storage' => OutboundReport::STORAGE_LOCAL, // 默认使用本地存储
+            'storage' => OutboundReport::defaultStorageType(),
         ]);
 
         // 分发异步任务
@@ -266,7 +291,7 @@ final class OutboundController extends Controller
         return $resource->response();
     }
 
-    public function downloadOutboundReport(int $id): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadOutboundReport(int $id): StreamedResponse
     {
         $report = OutboundReport::findOrFail($id);
 
@@ -275,9 +300,9 @@ final class OutboundController extends Controller
         }
 
         // 根据存储类型选择合适的磁盘
-        $disk = $report->isS3Storage() ? 's3' : 'public';
+        $disk = $report->getStorageDisk();
 
-        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($report->file_path)) {
+        if (!Storage::disk($disk)->exists($report->file_path)) {
             abort(404, 'Report file not found on storage');
         }
 
@@ -288,6 +313,6 @@ final class OutboundController extends Controller
             $report->format === 'excel' ? 'xlsx' : 'pdf'
         );
 
-        return \Illuminate\Support\Facades\Storage::disk($disk)->download($report->file_path, $filename);
+        return Storage::disk($disk)->download($report->file_path, $filename);
     }
 }

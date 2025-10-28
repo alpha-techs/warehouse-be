@@ -177,10 +177,9 @@ class GenerateOutboundReportJob implements ShouldQueue
         $pdf->setPaper('A4', 'portrait');
 
         // 根据报告的存储类型选择磁盘
-        $disk = $report->isS3Storage() ? 's3' : 'public';
         $filePath = 'reports/' . $filename;
 
-        Storage::disk($disk)->put($filePath, $pdf->output());
+        Storage::disk($report->getStorageDisk())->put($filePath, $pdf->output());
 
         return $filePath;
     }

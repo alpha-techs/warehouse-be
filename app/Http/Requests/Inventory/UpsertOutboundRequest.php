@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Inventory;
 
 use App\Http\Requests\BaseRequest;
+use Illuminate\Validation\Rule;
 
 final class UpsertOutboundRequest extends BaseRequest
 {
@@ -15,6 +16,31 @@ final class UpsertOutboundRequest extends BaseRequest
                 'max:255',
             ],
             'outboundDate' => ['date', 'required'],
+            'carrierName' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'currency' => [
+                'nullable',
+                'string',
+                Rule::in(['JPY']),
+            ],
+            'subtotalAmount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'taxAmount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'totalAmount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
             'warehouse.id' => [
                 'required',
                 'exists:warehouses,id',
@@ -47,6 +73,26 @@ final class UpsertOutboundRequest extends BaseRequest
                 'required',
                 'integer',
                 'min:1',
+            ],
+            'items.*.unitPrice' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'items.*.lineAmount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'items.*.taxAmount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'items.*.currency' => [
+                'nullable',
+                'string',
+                Rule::in(['JPY']),
             ],
             'items.*.lotNumber' => [
                 'nullable',

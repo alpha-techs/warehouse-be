@@ -32,6 +32,8 @@ interface OutboundServiceInterface
 
     public function updateOutbound(int $id, array $data): Outbound;
 
+    public function getOutbound(int $id): Outbound;
+
     public function deleteOutbound(int $id): bool;
 
     public function approveOutbound(int $id): Outbound;
