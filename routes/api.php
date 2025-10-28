@@ -26,9 +26,6 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware('auth.token')->group(function () {
-        // 文件下载（统一下载链接生成）
-        Route::get('downloads/{type}/{id}', [DocumentDownloadController::class, 'show']);
-
         // 仪表盘
         Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
 
@@ -67,7 +64,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/inboundReports', [InboundController::class, 'getInboundReports']);
         Route::post('inventory/inboundReport/generate', [InboundController::class, 'generateInboundReport']);
         Route::get('inventory/inboundReports/{id}/status', [InboundController::class, 'getInboundReportStatus']);
-        Route::get('inventory/inboundReports/{id}/download', [InboundController::class, 'downloadInboundReport']);
 
         // 出库
         Route::get('inventory/outbounds', [OutboundController::class, 'getOutbounds']);
@@ -83,7 +79,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/outboundReports', [OutboundController::class, 'getOutboundReports']);
         Route::post('inventory/outboundReport/generate', [OutboundController::class, 'generateOutboundReport']);
         Route::get('inventory/outboundReports/{id}/status', [OutboundController::class, 'getOutboundReportStatus']);
-        Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
 
         // 采购 - 注文书
         Route::get('procurement/orders', [OrderController::class, 'getOrders']);
@@ -100,7 +95,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('procurement/orderPrints', [OrderPrintController::class, 'getOrderPrints']);
         Route::post('procurement/orderPrint/generate', [OrderPrintController::class, 'generateOrderPrint']);
         Route::get('procurement/orderPrints/{printId}/status', [OrderPrintController::class, 'getOrderPrintStatus']);
-        Route::get('procurement/orderPrints/{printId}/download', [OrderPrintController::class, 'downloadOrderPrint']);
 
         // 结算 - 发票
         Route::get('billing/invoices', [InvoiceController::class, 'getInvoices']);
@@ -113,7 +107,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('billing/invoicePrints', [InvoicePrintController::class, 'getInvoicePrints']);
         Route::post('billing/invoicePrint/generate', [InvoicePrintController::class, 'generateInvoicePrint']);
         Route::get('billing/invoicePrints/{printId}/status', [InvoicePrintController::class, 'getInvoicePrintStatus']);
-        Route::get('billing/invoicePrints/{printId}/download', [InvoicePrintController::class, 'downloadInvoicePrint']);
 
         // 名义变更
         Route::get('inventory/nameChanges', [NameChangeController::class, 'getNameChanges']);
@@ -129,7 +122,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/nameChangeReports', [NameChangeController::class, 'getNameChangeReports']);
         Route::post('inventory/nameChangeReport/generate', [NameChangeController::class, 'generateNameChangeReport']);
         Route::get('inventory/nameChangeReports/{id}/status', [NameChangeController::class, 'getNameChangeReportStatus']);
-        Route::get('inventory/nameChangeReports/{id}/download', [NameChangeController::class, 'downloadNameChangeReport']);
 
         // 库存
         Route::get('inventory/list', [InventoryController::class, 'getList']);
@@ -148,6 +140,16 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/reports', [InventoryController::class, 'getReports']);
         Route::post('inventory/report/generate', [InventoryController::class, 'generateReport']);
         Route::get('inventory/reports/{id}/status', [InventoryController::class, 'getReportStatus']);
+    });
+
+    Route::middleware([])->group(function () {
+        // 文件下载（统一下载链接生成）
+        Route::get('downloads/{type}/{id}', [DocumentDownloadController::class, 'show']);
+        Route::get('inventory/inboundReports/{id}/download', [InboundController::class, 'downloadInboundReport']);
+        Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
+        Route::get('billing/invoicePrints/{printId}/download', [InvoicePrintController::class, 'downloadInvoicePrint']);
+        Route::get('inventory/nameChangeReports/{id}/download', [NameChangeController::class, 'downloadNameChangeReport']);
+        Route::get('procurement/orderPrints/{printId}/download', [OrderPrintController::class, 'downloadOrderPrint']);
         Route::get('inventory/reports/{id}/download', [InventoryController::class, 'downloadReport']);
     });
 });

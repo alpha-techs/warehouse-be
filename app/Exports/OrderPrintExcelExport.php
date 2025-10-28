@@ -39,7 +39,7 @@ class OrderPrintExcelExport
         $binary = ob_get_clean();
 
         if ($binary === false) {
-            throw new RuntimeException('Failed to capture name change Excel content.');
+            throw new RuntimeException('Failed to capture order print Excel content.');
         }
 
         return $binary;
