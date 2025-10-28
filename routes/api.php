@@ -9,6 +9,7 @@ use App\Http\Controllers\InboundController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePrintController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\NameChangeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderPrintController;
@@ -26,6 +27,9 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware('auth.token')->group(function () {
+        // 媒体
+        Route::post('media/images', [MediaController::class, 'uploadImage'])->name('media.images.store');
+
         // 仪表盘
         Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
 
@@ -143,7 +147,7 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware([])->group(function () {
-        // 文件下载（统一下载链接生成）
+        // 文件下载
         Route::get('downloads/{type}/{id}', [DocumentDownloadController::class, 'show']);
         Route::get('inventory/inboundReports/{id}/download', [InboundController::class, 'downloadInboundReport']);
         Route::get('inventory/outboundReports/{id}/download', [OutboundController::class, 'downloadOutboundReport']);
@@ -151,5 +155,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('inventory/nameChangeReports/{id}/download', [NameChangeController::class, 'downloadNameChangeReport']);
         Route::get('procurement/orderPrints/{printId}/download', [OrderPrintController::class, 'downloadOrderPrint']);
         Route::get('inventory/reports/{id}/download', [InventoryController::class, 'downloadReport']);
+
+        // 媒体图片
+        Route::get('media/images/{imageId}', [MediaController::class, 'showImage'])->name('media.images.show');
     });
 });

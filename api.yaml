@@ -400,6 +400,70 @@ paths:
             application/json:
               schema:
                 type: object
+  /media/images:
+    post:
+      summary: 上传图片
+      operationId: uploadMediaImage
+      tags:
+        - 媒体
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 图片文件
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadedImage'
+  '/media/images/{imageId}':
+    get:
+      summary: 获取图片内容
+      operationId: getMediaImage
+      tags:
+        - 媒体
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          description: 图片ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功代理返回图片内容
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Type:
+              description: 图片的MIME类型
+              schema:
+                type: string
+            Content-Length:
+              description: 图片大小（字节）
+              schema:
+                type: integer
   /customers:
     get:
       summary: 获取客户列表
@@ -3128,6 +3192,11 @@ components:
         cargoMark:
           type: string
           description: 货物标记
+        images:
+          type: array
+          description: 商品图片列表
+          items:
+            $ref: '#/components/schemas/ProductImage'
         dimension:
           type: object
           properties:
@@ -3174,6 +3243,28 @@ components:
         isActive:
           type: boolean
           description: 是否激活
+    ProductImage:
+      type: object
+      required:
+        - mediaId
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 商品图片记录ID
+        mediaId:
+          type: string
+          description: 媒体图片ID，用于通过媒体服务访问
+        url:
+          type: string
+          format: uri
+          description: 媒体服务代理访问地址
+        order:
+          type: integer
+          description: 图片顺序，值越小越靠前
+        altText:
+          type: string
+          description: 图片替代文本
     ProductCategory:
       type: object
       properties:
@@ -3204,6 +3295,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Product'
+    UploadedImage:
+      type: object
+      required:
+        - mediaId
+        - url
+      properties:
+        mediaId:
+          type: string
+          description: 媒体图片ID，用于后续访问或绑定商品
+        url:
+          type: string
+          format: uri
+          description: 图片访问地址（通过媒体服务代理访问，可能受权限控制）
+        fileName:
+          type: string
+          description: 原始文件名
+        contentType:
+          type: string
+          description: 文件MIME类型
+        size:
+          type: integer
+          format: int64
+          description: 文件大小（字节）
     Customer:
       type: object
       properties:

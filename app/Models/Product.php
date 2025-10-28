@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -30,7 +31,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read mixed $dimension
+ * @property mixed|null $dimension
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images
+ * @property-read int|null $images_count
+ * @method static \Database\Factories\ProductFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product onlyTrashed()
@@ -56,7 +60,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWeightUnit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereWidth($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product withoutTrashed()
  * @mixin \Eloquent
  * @noinspection PhpFullyQualifiedNameUsageInspection
@@ -77,6 +81,13 @@ class Product extends BaseModel
     ];
 
     protected $appends = ['dimension'];
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)
+            ->orderBy('order')
+            ->orderBy('id');
+    }
 
     public function dimension(): Attribute
     {
