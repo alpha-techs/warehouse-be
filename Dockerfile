@@ -18,4 +18,4 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-dev --no-interaction --no-progress --no-suggest --prefer-dist
 
 # run php artisan serve
-CMD php artisan schedule:work & php artisan queue:work & php artisan serve --host="0.0.0.0" --port="9000"
+CMD php artisan schedule:work & php artisan queue:work --tries=3 --memory=512 & php artisan serve --host="0.0.0.0" --port="9000"
