@@ -64,7 +64,7 @@ class InvoicePrintExcelExport
         // ご請求額
         $sheet->setCellValue('E18', $this->invoice->total_amount);
         // お支払い期限
-        $sheet->setCellValue('AD18', $this->invoice->due_date->format('Y/m/d'));
+        $sheet->setCellValue('AD18', $this->invoice->due_date?->format('Y/m/d'));
 
         // 填充商品数据
         $dataStartRow = 21;
