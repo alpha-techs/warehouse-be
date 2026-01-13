@@ -11,6 +11,10 @@ final class GetInboundReportListRequest extends BaseRequest
         return [
             'itemsPerPage' => 'nullable|integer|min:1|max:100',
             'page' => 'nullable|integer|min:1',
+            'customerId' => 'nullable|integer',
+            'warehouseId' => 'nullable|integer',
+            'startDate' => 'nullable|date',
+            'endDate' => 'nullable|date',
         ];
     }
 }

@@ -36,4 +36,13 @@ interface InboundServiceInterface
     public function approveInbound(int $id): Inbound;
 
     public function rejectInbound(int $id): Inbound;
+
+    public function getInboundReportList(
+        int $itemsPerPage = 30,
+        int $page = 1,
+        ?int $customerId = null,
+        ?int $warehouseId = null,
+        ?Carbon $startDate = null,
+        ?Carbon $endDate = null,
+    ): Paginator;
 }

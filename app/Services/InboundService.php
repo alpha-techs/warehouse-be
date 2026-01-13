@@ -201,11 +201,30 @@ final class InboundService implements InboundServiceInterface
     }
 
     // 入库报告相关方法
-    public function getInboundReportList(int $itemsPerPage = 30, int $page = 1): Paginator
+    public function getInboundReportList(
+        int $itemsPerPage = 30,
+        int $page = 1,
+        ?int $customerId = null,
+        ?int $warehouseId = null,
+        ?Carbon $startDate = null,
+        ?Carbon $endDate = null,
+    ): Paginator
     {
         $query = InboundReport::query()
             ->with(['inbound', 'warehouse', 'customer'])
             ->orderByDesc('id');
+        if ($customerId !== null) {
+            $query->where('customer_id', $customerId);
+        }
+        if ($warehouseId !== null) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+        if ($startDate !== null) {
+            $query->where('started_at', '>=', $startDate);
+        }
+        if ($endDate !== null) {
+            $query->where('started_at', '<=', $endDate);
+        }
         return $query->paginate($itemsPerPage, ['*'], 'page', $page);
     }
 

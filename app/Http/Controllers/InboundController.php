@@ -246,10 +246,20 @@ final class InboundController extends Controller
         $params = $request->validated();
         $itemsPerPage = data_get($params, 'itemsPerPage', 30);
         $page = data_get($params, 'page', 1);
+        $customerId = data_get($params, 'customerId');
+        $warehouseId = data_get($params, 'warehouseId');
+        $startDate = data_get($params, 'startDate');
+        $startDate = $startDate? Carbon::parse($startDate) : null;
+        $endDate = data_get($params, 'endDate');
+        $endDate = $endDate? Carbon::parse($endDate) : null;
 
         $reports = $inboundService->getInboundReportList(
             $itemsPerPage,
             $page,
+            $customerId,
+            $warehouseId,
+            $startDate,
+            $endDate,
         );
 
         $resources = new BaseResourceCollection($reports, InboundReportResource::class);
